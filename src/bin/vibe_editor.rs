@@ -20,7 +20,18 @@ fn main() -> eframe::Result<()> {
     eframe::run_native(
         "Vibe Editor",
         options,
-        Box::new(|_cc| Ok(Box::new(EditorApp::default()))),
+        Box::new(|cc| {
+            let recent: Vec<String> = cc
+                .storage
+                .and_then(|s| {
+                    serde_json::from_str(
+                        &s.get_string("recent_files").unwrap_or_default(),
+                    )
+                    .ok()
+                })
+                .unwrap_or_default();
+            Ok(Box::new(EditorApp::new(recent)))
+        }),
     )
 }
 
@@ -93,7 +104,7 @@ impl Default for ProjectDocument {
             engine_version: "vibe-engine-0.1.0".to_string(),
             created_unix: now,
             modified_unix: now,
-            notes: "Project notes...".to_string(),
+            notes: String::new(),
             settings: ProjectSettings::default(),
             scenes: vec![SceneDocument::default()],
             assets: Vec::new(),
@@ -124,7 +135,44 @@ impl Default for SceneDocument {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+struct EntitySnapshot {
+    name: String,
+    enabled: bool,
+    tags: String,
+    transform: TransformComponent,
+    render: Option<RenderComponent>,
+    collider: Option<ColliderComponent>,
+    script: Option<ScriptComponent>,
+}
+
+impl From<&EntityDocument> for EntitySnapshot {
+    fn from(e: &EntityDocument) -> Self {
+        Self {
+            name: e.name.clone(),
+            enabled: e.enabled,
+            tags: e.tags.clone(),
+            transform: e.transform.clone(),
+            render: e.render.clone(),
+            collider: e.collider.clone(),
+            script: e.script.clone(),
+        }
+    }
+}
+
+impl EntitySnapshot {
+    fn apply(&self, e: &mut EntityDocument) {
+        e.name.clone_from(&self.name);
+        e.enabled = self.enabled;
+        e.tags.clone_from(&self.tags);
+        e.transform = self.transform.clone();
+        e.render.clone_from(&self.render);
+        e.collider.clone_from(&self.collider);
+        e.script.clone_from(&self.script);
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 struct EntityDocument {
     id: u64,
     name: String,
@@ -171,7 +219,7 @@ impl EntityDocument {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 struct TransformComponent {
     position: [f32; 3],
     rotation: [f32; 3],
@@ -209,7 +257,7 @@ impl RenderKind {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 struct RenderComponent {
     kind: RenderKind,
     mesh: String,
@@ -251,7 +299,7 @@ impl ColliderShape {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 struct ColliderComponent {
     shape: ColliderShape,
     size: [f32; 3],
@@ -268,7 +316,7 @@ impl Default for ColliderComponent {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 struct ScriptComponent {
     script_path: String,
     entry: String,
@@ -331,6 +379,37 @@ struct RuntimeEntity {
     script: Option<ScriptComponent>,
 }
 
+#[derive(Clone)]
+enum UndoCommand {
+    AddEntity {
+        scene_index: usize,
+        entity: EntityDocument,
+    },
+    RemoveEntity {
+        scene_index: usize,
+        entity: EntityDocument,
+        index: usize,
+    },
+    ModifyEntity {
+        scene_index: usize,
+        entity_id: u64,
+        before: EntitySnapshot,
+        after: EntitySnapshot,
+    },
+    AddScene {
+        scene: SceneDocument,
+        index: usize,
+    },
+    RemoveScene {
+        scene: SceneDocument,
+        index: usize,
+    },
+    DuplicateEntity {
+        scene_index: usize,
+        entity: EntityDocument,
+    },
+}
+
 struct EditorApp {
     project: ProjectDocument,
     project_path: Option<PathBuf>,
@@ -351,13 +430,33 @@ struct EditorApp {
     status_line: String,
     console: Vec<String>,
     next_id: u64,
+    undo_stack: Vec<UndoCommand>,
+    redo_stack: Vec<UndoCommand>,
+
+    show_welcome: bool,
+    recent_files: Vec<PathBuf>,
+    confirm_delete_entity: Option<u64>,
+    confirm_delete_scene: Option<usize>,
+    confirm_new_project: bool,
+    confirm_quit: bool,
+    save_before_action: Option<SaveBeforeAction>,
+    rename_target: Option<u64>,
+    rename_buffer: String,
+
+    entity_before_edit: Option<EntitySnapshot>,
 }
 
-impl Default for EditorApp {
-    fn default() -> Self {
-        let project = ProjectDocument::default();
-        let mut app = Self {
-            project,
+#[derive(Clone)]
+enum SaveBeforeAction {
+    NewProject,
+    OpenProject,
+    Welcome,
+}
+
+impl EditorApp {
+    fn new(recent_paths: Vec<String>) -> Self {
+        Self {
+            project: ProjectDocument::default(),
             project_path: None,
             selected_scene: 0,
             selected_entity: None,
@@ -376,93 +475,596 @@ impl Default for EditorApp {
             status_line: "Ready".to_string(),
             console: vec!["Editor started".to_string()],
             next_id: 10,
-        };
-        app.recompute_next_id();
-        app
+            undo_stack: Vec::new(),
+            redo_stack: Vec::new(),
+            show_welcome: true,
+            recent_files: recent_paths.into_iter().map(PathBuf::from).collect(),
+            confirm_delete_entity: None,
+            confirm_delete_scene: None,
+            confirm_new_project: false,
+            confirm_quit: false,
+            save_before_action: None,
+            rename_target: None,
+            rename_buffer: String::new(),
+            entity_before_edit: None,
+        }
+    }
+
+    fn save_recent(&self, storage: &mut dyn eframe::Storage) {
+        let paths: Vec<String> = self
+            .recent_files
+            .iter()
+            .filter_map(|p| p.to_str().map(String::from))
+            .collect();
+        storage.set_string(
+            "recent_files",
+            serde_json::to_string(&paths).unwrap_or_default(),
+        );
     }
 }
 
 impl App for EditorApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        self.handle_keyboard(ctx);
+        self.commit_pending_entity_edit();
         self.ensure_valid_selection();
-        self.show_top_bar(ctx);
-        self.show_bottom_panel(ctx);
-        self.show_hierarchy_panel(ctx);
-        self.show_inspector_panel(ctx);
-        self.show_viewport(ctx);
+
+        if self.show_welcome {
+            self.show_welcome_screen(ctx);
+        } else {
+            self.show_top_bar(ctx);
+            self.show_hierarchy_panel(ctx);
+            self.show_inspector_panel(ctx);
+            self.show_viewport(ctx);
+            self.show_bottom_panel(ctx);
+        }
+
+        self.show_dialogs(ctx);
+    }
+
+    fn save(&mut self, storage: &mut dyn eframe::Storage) {
+        self.save_recent(storage);
     }
 }
 
 impl EditorApp {
+    fn handle_keyboard(&mut self, ctx: &egui::Context) {
+        if self.show_welcome {
+            return;
+        }
+
+        if ctx.input_mut(|i| i.consume_key(egui::Modifiers::CTRL, egui::Key::Z)) {
+            self.undo();
+        }
+        if ctx.input_mut(|i| i.consume_key(egui::Modifiers::CTRL, egui::Key::Y)) {
+            self.redo();
+        }
+        if ctx.input_mut(|i| {
+            i.consume_key(egui::Modifiers::CTRL, egui::Key::S) && !i.modifiers.shift
+        }) {
+            self.save_project(false);
+        }
+        if ctx.input_mut(|i| {
+            i.consume_key(egui::Modifiers::CTRL | egui::Modifiers::SHIFT, egui::Key::S)
+        }) {
+            self.save_project(true);
+        }
+        if ctx.input_mut(|i| i.consume_key(egui::Modifiers::CTRL, egui::Key::O)) {
+            if self.dirty {
+                self.save_before_action = Some(SaveBeforeAction::OpenProject);
+            } else {
+                self.open_project_dialog();
+            }
+        }
+        if ctx.input_mut(|i| i.consume_key(egui::Modifiers::CTRL, egui::Key::N)) {
+            if self.dirty {
+                self.save_before_action = Some(SaveBeforeAction::NewProject);
+            } else {
+                self.new_project();
+            }
+        }
+        if ctx.input_mut(|i| i.consume_key(egui::Modifiers::CTRL, egui::Key::Q)) {
+            if self.dirty {
+                self.confirm_quit = true;
+            } else {
+                ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+            }
+        }
+
+        if self.rename_target.is_some() {
+            if ctx.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::Enter)) {
+                let target = self.rename_target.take();
+                let new_name = self.rename_buffer.clone();
+                if let Some(rename_id) = target {
+                    let name_before = self
+                        .get_entity(Some(rename_id))
+                        .map(|e| e.name.clone())
+                        .unwrap_or_default();
+                    if self.selected_entity == Some(rename_id) {
+                        if let Some(entity) = self.selected_entity_mut() {
+                            entity.name = new_name;
+                            if let Some(entity) = self.selected_entity() {
+                                self.push_undo(UndoCommand::ModifyEntity {
+                                    scene_index: self.selected_scene,
+                                    entity_id: rename_id,
+                                    before: EntitySnapshot {
+                                        name: name_before,
+                                        ..EntitySnapshot::from(entity)
+                                    },
+                                    after: EntitySnapshot::from(entity),
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            if ctx.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::Escape)) {
+                self.rename_target = None;
+            }
+            return;
+        }
+
+        if ctx.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::Delete)) {
+            if self.selected_entity.is_some() {
+                self.confirm_delete_entity = self.selected_entity;
+            }
+        }
+
+        if ctx.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::F2)) {
+            let ent_name = self.selected_entity.and_then(|id| {
+                self.active_scene()
+                    .entities
+                    .iter()
+                    .find(|e| e.id == id)
+                    .map(|e| e.name.clone())
+            });
+            if let Some(name) = ent_name {
+                self.rename_target = self.selected_entity;
+                self.rename_buffer = name;
+            }
+        }
+
+        let tool_keys = [
+            (egui::Key::Num1, ToolMode::Select),
+            (egui::Key::Num2, ToolMode::Move),
+            (egui::Key::Num3, ToolMode::Rotate),
+            (egui::Key::Num4, ToolMode::Scale),
+        ];
+        for (key, mode) in tool_keys {
+            if ctx.input_mut(|i| i.consume_key(egui::Modifiers::NONE, key)) {
+                self.tool_mode = mode;
+            }
+        }
+    }
+
+    fn commit_pending_entity_edit(&mut self) {
+        let before = self.entity_before_edit.take();
+        if let Some(before) = before {
+            if let Some(entity) = self.selected_entity() {
+                let after = EntitySnapshot::from(entity);
+                if before != after {
+                    self.push_undo(UndoCommand::ModifyEntity {
+                        scene_index: self.selected_scene,
+                        entity_id: entity.id,
+                        before,
+                        after,
+                    });
+                }
+            }
+        }
+        if self.selected_entity.is_some() {
+            if let Some(entity) = self.selected_entity() {
+                self.entity_before_edit = Some(EntitySnapshot::from(entity));
+            }
+        }
+    }
+
+    fn push_undo(&mut self, cmd: UndoCommand) {
+        self.undo_stack.push(cmd);
+        self.redo_stack.clear();
+    }
+
+    fn push_or_replace_entity_undo(&mut self, cmd: UndoCommand) {
+        if let UndoCommand::ModifyEntity {
+            scene_index,
+            entity_id,
+            ..
+        } = &cmd
+        {
+            if let Some(UndoCommand::ModifyEntity {
+                scene_index: ls,
+                entity_id: lid,
+                ..
+            }) = self.undo_stack.last_mut()
+            {
+                if *ls == *scene_index && *lid == *entity_id {
+                    *self.undo_stack.last_mut().unwrap() = cmd;
+                    self.redo_stack.clear();
+                    return;
+                }
+            }
+        }
+        self.push_undo(cmd);
+    }
+
+    fn undo(&mut self) {
+        if let Some(cmd) = self.undo_stack.pop() {
+            match cmd.clone() {
+                UndoCommand::AddEntity { scene_index, .. } => {
+                    if let Some(scene) = self.project.scenes.get_mut(scene_index) {
+                        scene.entities.pop();
+                    }
+                }
+                UndoCommand::RemoveEntity {
+                    scene_index,
+                    entity,
+                    index,
+                } => {
+                    if let Some(scene) = self.project.scenes.get_mut(scene_index) {
+                        scene.entities.insert(index, entity);
+                    }
+                }
+                UndoCommand::ModifyEntity {
+                    scene_index,
+                    entity_id,
+                    before,
+                    ..
+                } => {
+                    if let Some(scene) = self.project.scenes.get_mut(scene_index) {
+                        if let Some(entity) = scene.entities.iter_mut().find(|e| e.id == entity_id)
+                        {
+                            before.apply(entity);
+                        }
+                    }
+                }
+                UndoCommand::AddScene { index, .. } => {
+                    self.project.scenes.remove(index);
+                    if self.selected_scene >= self.project.scenes.len() {
+                        self.selected_scene = self.project.scenes.len().saturating_sub(1);
+                    }
+                }
+                UndoCommand::RemoveScene { scene, index } => {
+                    self.project.scenes.insert(index, scene);
+                }
+                UndoCommand::DuplicateEntity { scene_index, entity } => {
+                    if let Some(scene) = self.project.scenes.get_mut(scene_index) {
+                        if let Some(pos) = scene.entities.iter().position(|e| e.id == entity.id) {
+                            scene.entities.remove(pos);
+                        }
+                    }
+                }
+            }
+            self.redo_stack.push(cmd);
+            self.dirty = true;
+        }
+    }
+
+    fn redo(&mut self) {
+        if let Some(cmd) = self.redo_stack.pop() {
+            match cmd.clone() {
+                UndoCommand::AddEntity {
+                    scene_index, entity, ..
+                } => {
+                    if let Some(scene) = self.project.scenes.get_mut(scene_index) {
+                        scene.entities.push(entity);
+                    }
+                }
+                UndoCommand::RemoveEntity {
+                    scene_index,
+                    entity,
+                    ..
+                } => {
+                    if let Some(scene) = self.project.scenes.get_mut(scene_index) {
+                        if let Some(pos) = scene.entities.iter().position(|e| e.id == entity.id) {
+                            scene.entities.remove(pos);
+                        }
+                    }
+                }
+                UndoCommand::ModifyEntity {
+                    scene_index,
+                    entity_id,
+                    after,
+                    ..
+                } => {
+                    if let Some(scene) = self.project.scenes.get_mut(scene_index) {
+                        if let Some(entity) = scene.entities.iter_mut().find(|e| e.id == entity_id)
+                        {
+                            after.apply(entity);
+                        }
+                    }
+                }
+                UndoCommand::AddScene { scene, index } => {
+                    self.project.scenes.insert(index, scene);
+                }
+                UndoCommand::RemoveScene { index, .. } => {
+                    if index < self.project.scenes.len() {
+                        self.project.scenes.remove(index);
+                        if self.selected_scene >= self.project.scenes.len() {
+                            self.selected_scene = self.project.scenes.len().saturating_sub(1);
+                        }
+                    }
+                }
+                UndoCommand::DuplicateEntity {
+                    scene_index, entity, ..
+                } => {
+                    if let Some(scene) = self.project.scenes.get_mut(scene_index) {
+                        scene.entities.push(entity);
+                    }
+                }
+            }
+            self.undo_stack.push(cmd);
+            self.dirty = true;
+        }
+    }
+
+    fn show_welcome_screen(&mut self, ctx: &egui::Context) {
+        egui::CentralPanel::default().show(ctx, |ui| {
+            let rect = ui.max_rect();
+            let available = ui.available_size();
+            let center_x = rect.center().x;
+
+            let header_y = available.y * 0.25;
+
+            {
+                let painter = ui.painter();
+                painter.rect_filled(rect, 0.0, Color32::from_rgb(22, 24, 30));
+                painter.text(
+                    Pos2::new(center_x, header_y),
+                    egui::Align2::CENTER_CENTER,
+                    "Vibe Editor",
+                    FontId::proportional(36.0),
+                    Color32::from_rgb(220, 224, 245),
+                );
+                painter.text(
+                    Pos2::new(center_x, header_y + 36.0),
+                    egui::Align2::CENTER_CENTER,
+                    "Scene & entity editor for Vibe Engine",
+                    FontId::proportional(16.0),
+                    Color32::from_rgb(140, 148, 180),
+                );
+            }
+
+            let card_w = 260.0;
+            let card_h = 140.0;
+            let gap = 20.0;
+            let total_w = card_w * 2.0 + gap;
+            let start_x = center_x - total_w / 2.0;
+            let cards_y = header_y + 80.0;
+
+            let cards: [(&str, &str, Color32); 2] = [
+                ("New Project", "Start a blank project", Color32::from_rgb(65, 72, 110)),
+                ("Open Project", "Browse for a .vibe.json file", Color32::from_rgb(72, 90, 110)),
+            ];
+
+            for (i, (title, desc, bg_color)) in cards.iter().enumerate() {
+                let x = start_x + i as f32 * (card_w + gap);
+                let card_rect =
+                    Rect::from_min_size(Pos2::new(x, cards_y), Vec2::new(card_w, card_h));
+                let resp = ui.allocate_ui_at_rect(card_rect, |ui| {
+                    let p = ui.painter_at(card_rect);
+                    p.rect_filled(card_rect, 8.0, *bg_color);
+                    p.rect_stroke(
+                        card_rect,
+                        8.0,
+                        Stroke::new(1.0, Color32::from_rgb(90, 100, 140)),
+                    );
+                    p.text(
+                        card_rect.left_center() + Vec2::new(16.0, -10.0),
+                        egui::Align2::LEFT_CENTER,
+                        *title,
+                        FontId::proportional(18.0),
+                        Color32::from_rgb(235, 238, 255),
+                    );
+                    p.text(
+                        card_rect.left_center() + Vec2::new(16.0, 14.0),
+                        egui::Align2::LEFT_CENTER,
+                        *desc,
+                        FontId::proportional(13.0),
+                        Color32::from_rgb(170, 178, 210),
+                    );
+                })
+                .response;
+
+                if resp.clicked() {
+                    self.show_welcome = false;
+                    if i == 0 {
+                        self.new_project();
+                    } else {
+                        self.open_project_dialog();
+                    }
+                }
+                if resp.hovered() {
+                    ctx.set_cursor_icon(egui::CursorIcon::PointingHand);
+                }
+            }
+
+            if !self.recent_files.is_empty() {
+                let recent_y = cards_y + card_h + 40.0;
+                {
+                    let painter = ui.painter();
+                    painter.text(
+                        Pos2::new(center_x, recent_y),
+                        egui::Align2::CENTER_CENTER,
+                        "Recent Projects",
+                        FontId::proportional(14.0),
+                        Color32::from_rgb(140, 148, 180),
+                    );
+                }
+
+                let recent = self.recent_files.clone();
+                for (i, path) in recent.iter().enumerate() {
+                    let y = recent_y + 30.0 + i as f32 * 26.0;
+                    let item_rect = Rect::from_min_size(
+                        Pos2::new(center_x - 120.0, y - 12.0),
+                        Vec2::new(240.0, 24.0),
+                    );
+                    let resp = ui.allocate_ui_at_rect(item_rect, |ui| {
+                        ui.selectable_label(false, display_name(path));
+                    })
+                    .response;
+                    if resp.clicked() {
+                        self.show_welcome = false;
+                        self.open_project(path.clone());
+                    }
+                    if resp.hovered() {
+                        ctx.set_cursor_icon(egui::CursorIcon::PointingHand);
+                    }
+                }
+            }
+        });
+    }
+
     fn show_top_bar(&mut self, ctx: &egui::Context) {
         egui::TopBottomPanel::top("editor_top_bar").show(ctx, |ui| {
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
                     if ui.button("New Project").clicked() {
-                        self.new_project();
+                        if self.dirty {
+                            self.save_before_action = Some(SaveBeforeAction::NewProject);
+                        } else {
+                            self.new_project();
+                        }
                         ui.close_menu();
                     }
                     if ui.button("Open Project...").clicked() {
-                        self.open_project_dialog();
+                        if self.dirty {
+                            self.save_before_action = Some(SaveBeforeAction::OpenProject);
+                        } else {
+                            self.open_project_dialog();
+                        }
                         ui.close_menu();
                     }
-                    if ui.button("Save").clicked() {
+                    ui.separator();
+                    if ui.button("Save  Ctrl+S").clicked() {
                         self.save_project(false);
                         ui.close_menu();
                     }
-                    if ui.button("Save As...").clicked() {
+                    if ui.button("Save As...  Ctrl+Shift+S").clicked() {
                         self.save_project(true);
                         ui.close_menu();
                     }
+                    ui.separator();
                     if ui.button("Export Runtime Pack...").clicked() {
                         self.export_runtime_dialog();
                         ui.close_menu();
                     }
                     ui.separator();
-                    if ui.button("Quit").clicked() {
-                        ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+                    if !self.recent_files.is_empty() {
+                        ui.menu_button("Recent", |ui| {
+                            let recent = self.recent_files.clone();
+                            for path in &recent {
+                                if ui.button(display_name(path)).clicked() {
+                                    self.open_project(path.clone());
+                                    ui.close_menu();
+                                }
+                            }
+                            ui.separator();
+                            if ui.button("Clear Recent").clicked() {
+                                self.recent_files.clear();
+                                ui.close_menu();
+                            }
+                        });
+                    }
+                    ui.separator();
+                    if ui.button("Quit  Ctrl+Q").clicked() {
+                        if self.dirty {
+                            self.confirm_quit = true;
+                        } else {
+                            ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+                        }
+                        ui.close_menu();
                     }
                 });
 
-                ui.menu_button("Project", |ui| {
-                    if ui.button("Launch Game Collection").clicked() {
-                        self.launch_binary("vibe-engine");
+                ui.menu_button("Edit", |ui| {
+                    let can_undo = !self.undo_stack.is_empty();
+                    let can_redo = !self.redo_stack.is_empty();
+                    if ui
+                        .add_enabled(can_undo, egui::Button::new("Undo  Ctrl+Z"))
+                        .clicked()
+                    {
+                        self.undo();
                         ui.close_menu();
                     }
-                    if ui.button("Launch Launcher App").clicked() {
-                        self.launch_binary("vibe-launcher");
+                    if ui
+                        .add_enabled(can_redo, egui::Button::new("Redo  Ctrl+Y"))
+                        .clicked()
+                    {
+                        self.redo();
                         ui.close_menu();
                     }
-                    if ui.button("Create Scene").clicked() {
+                });
+
+                ui.menu_button("Scene", |ui| {
+                    if ui.button("Add Scene").clicked() {
                         self.add_scene();
                         ui.close_menu();
                     }
-                    if ui.button("Create Entity").clicked() {
+                    if ui.button("Add Entity").clicked() {
                         self.add_entity();
+                        ui.close_menu();
+                    }
+                    ui.separator();
+                    if ui.button("Launch Game").clicked() {
+                        self.launch_binary("vibe-engine");
+                        ui.close_menu();
+                    }
+                    if ui.button("Launch Launcher").clicked() {
+                        self.launch_binary("vibe-launcher");
                         ui.close_menu();
                     }
                 });
 
                 ui.menu_button("Help", |ui| {
-                    ui.label("Vibe Editor gives you a full project GUI:");
-                    ui.label("- Hierarchy and scene organization");
-                    ui.label("- Viewport with selection and move tools");
-                    ui.label("- Inspector for components");
-                    ui.label("- Asset browser and import");
-                    ui.label("- Save/load/export runtime packs");
+                    ui.label("Shortcuts:");
+                    ui.label("  Ctrl+N  New project");
+                    ui.label("  Ctrl+O  Open project");
+                    ui.label("  Ctrl+S  Save");
+                    ui.label("  Ctrl+Z  Undo");
+                    ui.label("  Ctrl+Y  Redo");
+                    ui.label("  Delete  Remove entity");
+                    ui.label("  F2      Rename entity");
+                    ui.label("  1-4     Switch tool");
+                    ui.label("  Ctrl+Q  Quit");
                 });
 
                 ui.separator();
-                ui.label(if self.dirty { "Unsaved changes" } else { "Saved" });
-                ui.label(format!("Project: {}", self.project.name));
+                let (dirty_text, dirty_color) = if self.dirty {
+                    ("● Unsaved", Color32::from_rgb(245, 200, 80))
+                } else {
+                    ("○ Saved", Color32::from_rgb(130, 190, 130))
+                };
+                ui.colored_label(dirty_color, dirty_text);
+                ui.separator();
+                ui.label(format!(
+                    "Project: {}  |  Scene: {}",
+                    self.project.name,
+                    self.active_scene().name
+                ));
+
+                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                    if ui.button("Welcome").clicked() {
+                        if self.dirty {
+                            self.save_before_action = Some(SaveBeforeAction::Welcome);
+                        } else {
+                            self.show_welcome = true;
+                        }
+                    }
+                });
             });
 
             ui.separator();
-            ui.horizontal_wrapped(|ui| {
+            ui.horizontal(|ui| {
                 ui.label("Tool:");
                 for mode in ToolMode::all() {
+                    let label = match mode {
+                        ToolMode::Select => "Select [1]",
+                        ToolMode::Move => "Move [2]",
+                        ToolMode::Rotate => "Rotate [3]",
+                        ToolMode::Scale => "Scale [4]",
+                    };
                     if ui
-                        .selectable_label(self.tool_mode == mode, mode.label())
+                        .selectable_label(self.tool_mode == mode, label)
                         .clicked()
                     {
                         self.tool_mode = mode;
@@ -470,15 +1072,17 @@ impl EditorApp {
                 }
 
                 ui.separator();
-                if ui
-                    .button(if self.play_mode { "Stop Preview" } else { "Play Preview" })
-                    .clicked()
-                {
+                let play_label = if self.play_mode {
+                    "⏹ Stop"
+                } else {
+                    "▶ Play"
+                };
+                if ui.button(play_label).clicked() {
                     self.play_mode = !self.play_mode;
                     self.push_log(if self.play_mode {
-                        "Preview mode enabled"
+                        "Preview mode on"
                     } else {
-                        "Preview mode disabled"
+                        "Preview mode off"
                     });
                 }
 
@@ -514,77 +1118,36 @@ impl EditorApp {
                         self.add_scene();
                     }
                     if ui.button("- Scene").clicked() {
-                        self.remove_selected_scene();
+                        if self.project.scenes.len() > 1 {
+                            self.confirm_delete_scene = Some(self.selected_scene);
+                        } else {
+                            self.status_line = "Need at least one scene".to_string();
+                        }
                     }
                 });
                 ui.horizontal(|ui| {
                     if ui.button("+ Entity").clicked() {
                         self.add_entity();
                     }
-                    if ui
-                        .add_enabled(self.selected_entity.is_some(), egui::Button::new("Duplicate"))
-                        .clicked()
-                    {
+                    if ui.button("Duplicate").clicked() {
                         self.duplicate_selected_entity();
                     }
-                    if ui
-                        .add_enabled(self.selected_entity.is_some(), egui::Button::new("Delete"))
-                        .clicked()
-                    {
-                        self.remove_selected_entity();
+                    if ui.button("Delete").clicked() {
+                        if self.selected_entity.is_some() {
+                            self.confirm_delete_entity = self.selected_entity;
+                        }
                     }
                 });
 
                 ui.separator();
-                ui.label("Filter");
-                ui.text_edit_singleline(&mut self.hierarchy_filter);
+                ui.horizontal(|ui| {
+                    ui.label("Filter:");
+                    ui.text_edit_singleline(&mut self.hierarchy_filter);
+                });
                 ui.separator();
 
                 let filter = self.hierarchy_filter.to_lowercase();
-                let mut pending_scene = None;
-                let mut pending_entity = None;
-
-                egui::ScrollArea::vertical().show(ui, |ui| {
-                    for (scene_index, scene) in self.project.scenes.iter().enumerate() {
-                        egui::CollapsingHeader::new(format!("{} ({})", scene.name, scene.entities.len()))
-                            .default_open(scene_index == self.selected_scene)
-                            .show(ui, |ui| {
-                                let scene_selected =
-                                    self.selected_scene == scene_index && self.selected_entity.is_none();
-                                if ui
-                                    .selectable_label(scene_selected, "Scene Settings")
-                                    .clicked()
-                                {
-                                    pending_scene = Some(scene_index);
-                                    pending_entity = Some(None);
-                                }
-
-                                for entity in &scene.entities {
-                                    if !filter.is_empty()
-                                        && !entity.name.to_lowercase().contains(&filter)
-                                    {
-                                        continue;
-                                    }
-                                    let selected = self.selected_scene == scene_index
-                                        && self.selected_entity == Some(entity.id);
-                                    if ui
-                                        .selectable_label(selected, &entity.name)
-                                        .clicked()
-                                    {
-                                        pending_scene = Some(scene_index);
-                                        pending_entity = Some(Some(entity.id));
-                                    }
-                                }
-                            });
-                    }
-                });
-
-                if let Some(scene_index) = pending_scene {
-                    self.selected_scene = scene_index;
-                }
-                if let Some(entity) = pending_entity {
-                    self.selected_entity = entity;
-                }
+                scenes_hierarchy_ui(ui, self, &filter);
             });
     }
 
@@ -593,25 +1156,41 @@ impl EditorApp {
             .resizable(true)
             .default_width(350.0)
             .show(ctx, |ui| {
-                ui.heading("Inspector");
-                ui.separator();
+                egui::ScrollArea::vertical().show(ui, |ui| {
+                    ui.heading("Inspector");
+                    ui.separator();
 
-                if self.selected_entity.is_some() {
-                    self.draw_entity_inspector(ui);
-                } else {
-                    self.draw_scene_and_project_inspector(ui);
-                }
+                    if let Some(entity) = self.selected_entity() {
+                        let before = EntitySnapshot::from(entity);
+                        self.draw_entity_inspector(ui);
+                        if let Some(entity) = self.selected_entity() {
+                            let after = EntitySnapshot::from(entity);
+                            if before != after {
+                                self.push_or_replace_entity_undo(UndoCommand::ModifyEntity {
+                                    scene_index: self.selected_scene,
+                                    entity_id: entity.id,
+                                    before,
+                                    after,
+                                });
+                                self.dirty = true;
+                            }
+                        }
+                    } else {
+                        self.draw_scene_and_project_inspector(ui);
+                    }
 
-                ui.separator();
-                ui.heading("Selected Asset");
-                self.draw_selected_asset(ui);
+                    ui.separator();
+                    ui.heading("Asset");
+                    self.draw_selected_asset(ui);
+                });
             });
     }
 
     fn show_bottom_panel(&mut self, ctx: &egui::Context) {
         egui::TopBottomPanel::bottom("assets_console_panel")
             .resizable(true)
-            .default_height(250.0)
+            .default_height(220.0)
+            .min_height(100.0)
             .show(ctx, |ui| {
                 ui.columns(2, |columns| {
                     self.draw_asset_browser(&mut columns[0]);
@@ -638,17 +1217,20 @@ impl EditorApp {
                 let scroll = ui.input(|i| i.raw_scroll_delta.y);
                 if scroll.abs() > f32::EPSILON {
                     let zoom_factor = 1.0 + scroll * 0.0015;
-                    self.viewport_zoom = (self.viewport_zoom * zoom_factor).clamp(14.0, 280.0);
+                    self.viewport_zoom =
+                        (self.viewport_zoom * zoom_factor).clamp(14.0, 280.0);
                 }
             }
 
             if response.clicked_by(egui::PointerButton::Primary) {
+                self.commit_pending_entity_edit();
                 if let Some(pointer) = response.interact_pointer_pos() {
                     self.select_entity_at_screen(rect, pointer);
                 }
             }
 
-            if self.tool_mode == ToolMode::Move && response.dragged_by(egui::PointerButton::Primary)
+            if self.tool_mode == ToolMode::Move
+                && response.dragged_by(egui::PointerButton::Primary)
             {
                 if let Some(pointer) = response.interact_pointer_pos() {
                     let (world_x, world_z) = self.screen_to_world(rect, pointer);
@@ -657,7 +1239,7 @@ impl EditorApp {
                     if let Some(entity) = self.selected_entity_mut() {
                         entity.transform.position[0] = x;
                         entity.transform.position[2] = z;
-                        self.mark_dirty("Moved entity in viewport");
+                        self.dirty = true;
                     }
                 }
             }
@@ -665,6 +1247,7 @@ impl EditorApp {
             if response.double_clicked() {
                 if let Some(pointer) = response.interact_pointer_pos() {
                     let (world_x, world_z) = self.screen_to_world(rect, pointer);
+                    self.commit_pending_entity_edit();
                     self.add_entity_at(world_x, world_z);
                 }
             }
@@ -677,7 +1260,7 @@ impl EditorApp {
             }
 
             let overlay = format!(
-                "Scene: {} | Entities: {} | Zoom: {:.0}%",
+                "{} | {} entities | Zoom {:.0}%",
                 scene.name,
                 scene.entities.len(),
                 self.viewport_zoom / 48.0 * 100.0
@@ -692,158 +1275,360 @@ impl EditorApp {
         });
     }
 
-    fn draw_scene_and_project_inspector(&mut self, ui: &mut egui::Ui) {
-        ui.heading("Scene");
-        let mut changed = false;
-        {
-            let scene = self.active_scene_mut();
-            changed |= ui.text_edit_singleline(&mut scene.name).changed();
-            changed |= ui
-                .add(
-                    egui::DragValue::new(&mut scene.grid_size)
-                        .range(0.1..=8.0)
-                        .speed(0.05)
-                        .prefix("Grid "),
-                )
-                .changed();
-            changed |= color_row_rgb(ui, "Ambient", &mut scene.ambient_light);
-            changed |= color_row_rgb(ui, "Clear", &mut scene.clear_color);
-        }
-        if changed {
-            self.mark_dirty("Updated scene settings");
+    fn show_dialogs(&mut self, ctx: &egui::Context) {
+        if let Some(id) = self.confirm_delete_entity.take() {
+            let ent_name = self
+                .active_scene()
+                .entities
+                .iter()
+                .find(|e| e.id == id)
+                .map(|e| e.name.clone())
+                .unwrap_or_else(|| "Entity".to_string());
+            let mut delete_confirmed = false;
+            let mut delete_cancelled = false;
+            egui::Window::new("Delete Entity")
+                .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
+                .collapsible(false)
+                .resizable(false)
+                .show(ctx, |ui| {
+                    ui.label(format!("Delete \"{}\"?", ent_name));
+                    ui.horizontal(|ui| {
+                        if ui.button("Delete").clicked() {
+                            delete_confirmed = true;
+                        }
+                        if ui.button("Cancel").clicked() {
+                            delete_cancelled = true;
+                        }
+                    });
+                });
+            if delete_confirmed {
+                self.remove_entity_by_id(id);
+            }
+            if !delete_confirmed && !delete_cancelled {
+                self.confirm_delete_entity = Some(id);
+            }
         }
 
-        ui.separator();
-        ui.heading("Project");
-        let mut project_changed = false;
-        project_changed |= ui.text_edit_singleline(&mut self.project.name).changed();
-        project_changed |= ui.text_edit_singleline(&mut self.project.author).changed();
-        project_changed |= ui
-            .text_edit_singleline(&mut self.project.settings.startup_scene)
-            .changed();
-        project_changed |= ui
-            .add(
-                egui::DragValue::new(&mut self.project.settings.gravity)
-                    .speed(0.05)
-                    .prefix("Gravity "),
-            )
-            .changed();
-        project_changed |= ui
-            .add(
-                egui::DragValue::new(&mut self.project.settings.fixed_timestep)
-                    .speed(0.0005)
-                    .range(0.001..=0.1)
-                    .prefix("Fixed dt "),
-            )
-            .changed();
-        project_changed |= ui
-            .text_edit_singleline(&mut self.project.settings.lighting_quality)
-            .changed();
-        project_changed |= ui
-            .add(
-                egui::TextEdit::multiline(&mut self.project.notes)
-                    .desired_rows(4)
-                    .hint_text("Project notes"),
-            )
-            .changed();
-        if project_changed {
-            self.mark_dirty("Updated project settings");
+        if let Some(index) = self.confirm_delete_scene.take() {
+            let scene_name = self
+                .project
+                .scenes
+                .get(index)
+                .map(|s| s.name.clone())
+                .unwrap_or_else(|| "Scene".to_string());
+            let mut delete_confirmed = false;
+            let mut delete_cancelled = false;
+            egui::Window::new("Delete Scene")
+                .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
+                .collapsible(false)
+                .resizable(false)
+                .show(ctx, |ui| {
+                    ui.label(format!("Delete scene \"{}\"?", scene_name));
+                    ui.horizontal(|ui| {
+                        if ui.button("Delete").clicked() {
+                            delete_confirmed = true;
+                        }
+                        if ui.button("Cancel").clicked() {
+                            delete_cancelled = true;
+                        }
+                    });
+                });
+            if delete_confirmed {
+                let scene_data = self.project.scenes[index].clone();
+                self.project.scenes.remove(index);
+                self.push_undo(UndoCommand::RemoveScene {
+                    scene: scene_data,
+                    index,
+                });
+                self.selected_scene = self.selected_scene.min(
+                    self.project.scenes.len().saturating_sub(1),
+                );
+                self.selected_entity = None;
+                self.dirty = true;
+                self.push_log(format!("Deleted scene \"{}\"", scene_name));
+            }
+            if !delete_confirmed && !delete_cancelled {
+                self.confirm_delete_scene = Some(index);
+            }
+        }
+
+        if self.confirm_new_project {
+            let mut action = None;
+            egui::Window::new("New Project")
+                .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
+                .collapsible(false)
+                .resizable(false)
+                .show(ctx, |ui| {
+                    ui.label("Save current project first?");
+                    ui.horizontal(|ui| {
+                        if ui.button("Save & New").clicked() {
+                            action = Some(true);
+                        }
+                        if ui.button("Discard & New").clicked() {
+                            action = Some(false);
+                        }
+                        if ui.button("Cancel").clicked() {
+                            action = Some(false);
+                            self.confirm_new_project = false;
+                        }
+                    });
+                });
+            match action {
+                Some(true) => {
+                    self.save_project(false);
+                    self.new_project();
+                    self.confirm_new_project = false;
+                }
+                Some(false) => {
+                    self.confirm_new_project = false;
+                }
+                None => {}
+            }
+        }
+
+        if self.confirm_quit {
+            let mut action = None;
+            egui::Window::new("Unsaved Changes")
+                .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
+                .collapsible(false)
+                .resizable(false)
+                .show(ctx, |ui| {
+                    ui.label("Save changes before quitting?");
+                    ui.horizontal(|ui| {
+                        if ui.button("Save & Quit").clicked() {
+                            action = Some(true);
+                        }
+                        if ui.button("Discard & Quit").clicked() {
+                            action = Some(false);
+                        }
+                        if ui.button("Cancel").clicked() {
+                            action = Some(false);
+                            self.confirm_quit = false;
+                        }
+                    });
+                });
+            match action {
+                Some(true) => {
+                    self.save_project(false);
+                    self.confirm_quit = false;
+                    ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+                }
+                Some(false) => {
+                    self.confirm_quit = false;
+                    ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+                }
+                None => {}
+            }
+        }
+
+        if let Some(action) = self.save_before_action.take() {
+            let mut chosen: Option<bool> = None;
+            egui::Window::new("Unsaved Changes")
+                .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
+                .collapsible(false)
+                .resizable(false)
+                .show(ctx, |ui| {
+                    ui.label("Save current project first?");
+                    ui.horizontal(|ui| {
+                        if ui.button("Save").clicked() {
+                            chosen = Some(true);
+                        }
+                        if ui.button("Discard").clicked() {
+                            chosen = Some(false);
+                        }
+                        if ui.button("Cancel").clicked() {
+                            chosen = Some(false);
+                        }
+                    });
+                });
+            match (chosen, action.clone()) {
+                (Some(true), SaveBeforeAction::NewProject) => {
+                    self.save_project(false);
+                    self.new_project();
+                }
+                (Some(false), SaveBeforeAction::NewProject) => {
+                    self.new_project();
+                }
+                (Some(true), SaveBeforeAction::OpenProject) => {
+                    self.save_project(false);
+                    self.open_project_dialog();
+                }
+                (Some(false), SaveBeforeAction::OpenProject) => {
+                    self.open_project_dialog();
+                }
+                (Some(true), SaveBeforeAction::Welcome) => {
+                    self.save_project(false);
+                    self.show_welcome = true;
+                }
+                (Some(false), SaveBeforeAction::Welcome) => {
+                    self.show_welcome = true;
+                }
+                (None, _) => {
+                    self.save_before_action = Some(action);
+                }
+            }
         }
     }
 
+    fn draw_scene_and_project_inspector(&mut self, ui: &mut egui::Ui) {
+        ui.heading("Scene");
+        ui.separator();
+
+        let scene = self.active_scene_mut();
+        ui.horizontal(|ui| {
+            ui.label("Name:");
+            ui.text_edit_singleline(&mut scene.name);
+        });
+        ui.add(
+            egui::DragValue::new(&mut scene.grid_size)
+                .range(0.1..=8.0)
+                .speed(0.05)
+                .prefix("Grid: "),
+        );
+        color_row_rgb(ui, "Ambient:", &mut scene.ambient_light);
+        color_row_rgb(ui, "Clear:", &mut scene.clear_color);
+
+        ui.separator();
+        ui.heading("Project");
+        ui.separator();
+
+        ui.horizontal(|ui| {
+            ui.label("Name:");
+            ui.text_edit_singleline(&mut self.project.name);
+        });
+        ui.horizontal(|ui| {
+            ui.label("Author:");
+            ui.text_edit_singleline(&mut self.project.author);
+        });
+        ui.horizontal(|ui| {
+            ui.label("Startup Scene:");
+            ui.text_edit_singleline(&mut self.project.settings.startup_scene);
+        });
+        ui.add(
+            egui::DragValue::new(&mut self.project.settings.gravity)
+                .speed(0.05)
+                .prefix("Gravity: "),
+        );
+        ui.add(
+            egui::DragValue::new(&mut self.project.settings.fixed_timestep)
+                .speed(0.0005)
+                .range(0.001..=0.1)
+                .prefix("Fixed dt: "),
+        );
+        ui.horizontal(|ui| {
+            ui.label("Lighting Quality:");
+            ui.text_edit_singleline(&mut self.project.settings.lighting_quality);
+        });
+        ui.label("Notes:");
+        ui.add(
+            egui::TextEdit::multiline(&mut self.project.notes)
+                .desired_rows(3)
+                .hint_text("Project notes"),
+        );
+    }
+
     fn draw_entity_inspector(&mut self, ui: &mut egui::Ui) {
-        let mut changed = false;
+        let entity = match self.selected_entity_mut() {
+            Some(e) => e,
+            None => return,
+        };
 
-        if let Some(entity) = self.selected_entity_mut() {
-            ui.heading("Entity");
-            changed |= ui.text_edit_singleline(&mut entity.name).changed();
-            changed |= ui.checkbox(&mut entity.enabled, "Enabled").changed();
-            changed |= ui.text_edit_singleline(&mut entity.tags).changed();
+        ui.heading("Entity");
+        ui.separator();
+        ui.horizontal(|ui| {
+            ui.label("Name:");
+            ui.text_edit_singleline(&mut entity.name);
+        });
+        ui.checkbox(&mut entity.enabled, "Enabled");
+        ui.horizontal(|ui| {
+            ui.label("Tags:");
+            ui.text_edit_singleline(&mut entity.tags);
+        });
 
-            ui.separator();
-            ui.heading("Transform");
-            changed |= edit_vec3(ui, "Position", &mut entity.transform.position);
-            changed |= edit_vec3(ui, "Rotation", &mut entity.transform.rotation);
-            changed |= edit_vec3(ui, "Scale", &mut entity.transform.scale);
+        ui.separator();
+        ui.heading("Transform");
+        edit_vec3(ui, "Position", &mut entity.transform.position);
+        edit_vec3(ui, "Rotation", &mut entity.transform.rotation);
+        edit_vec3(ui, "Scale", &mut entity.transform.scale);
 
-            ui.separator();
-            ui.heading("Render Component");
-            let mut has_render = entity.render.is_some();
-            if ui.checkbox(&mut has_render, "Enabled").changed() {
-                if has_render {
-                    entity.render = Some(RenderComponent::default());
-                } else {
-                    entity.render = None;
-                }
-                changed = true;
-            }
-            if let Some(render) = entity.render.as_mut() {
-                egui::ComboBox::from_label("Kind")
-                    .selected_text(render.kind.label())
-                    .show_ui(ui, |ui| {
-                        for kind in RenderKind::all() {
-                            changed |= ui
-                                .selectable_value(&mut render.kind, kind, kind.label())
-                                .changed();
-                        }
-                    });
-                changed |= ui.text_edit_singleline(&mut render.mesh).changed();
-                changed |= ui.text_edit_singleline(&mut render.material).changed();
-                changed |= ui
-                    .add(egui::DragValue::new(&mut render.layer).prefix("Layer "))
-                    .changed();
-                changed |= ui
-                    .color_edit_button_rgba_unmultiplied(&mut render.color)
-                    .changed();
-            }
-
-            ui.separator();
-            ui.heading("Collider Component");
-            let mut has_collider = entity.collider.is_some();
-            if ui.checkbox(&mut has_collider, "Enabled").changed() {
-                if has_collider {
-                    entity.collider = Some(ColliderComponent::default());
-                } else {
-                    entity.collider = None;
-                }
-                changed = true;
-            }
-            if let Some(collider) = entity.collider.as_mut() {
-                egui::ComboBox::from_label("Shape")
-                    .selected_text(collider.shape.label())
-                    .show_ui(ui, |ui| {
-                        for shape in ColliderShape::all() {
-                            changed |= ui
-                                .selectable_value(&mut collider.shape, shape, shape.label())
-                                .changed();
-                        }
-                    });
-                changed |= edit_vec3(ui, "Size", &mut collider.size);
-                changed |= ui.checkbox(&mut collider.is_trigger, "Is Trigger").changed();
-            }
-
-            ui.separator();
-            ui.heading("Script Component");
-            let mut has_script = entity.script.is_some();
-            if ui.checkbox(&mut has_script, "Enabled").changed() {
-                if has_script {
-                    entity.script = Some(ScriptComponent {
-                        script_path: "scripts/new_script.rs".to_string(),
-                        entry: "update".to_string(),
-                    });
-                } else {
-                    entity.script = None;
-                }
-                changed = true;
-            }
-            if let Some(script) = entity.script.as_mut() {
-                changed |= ui.text_edit_singleline(&mut script.script_path).changed();
-                changed |= ui.text_edit_singleline(&mut script.entry).changed();
+        ui.separator();
+        ui.heading("Render");
+        let mut has_render = entity.render.is_some();
+        if ui.checkbox(&mut has_render, "Enabled").changed() {
+            if has_render {
+                entity.render = Some(RenderComponent::default());
+            } else {
+                entity.render = None;
             }
         }
+        if let Some(render) = entity.render.as_mut() {
+            egui::ComboBox::from_label("Kind")
+                .selected_text(render.kind.label())
+                .show_ui(ui, |ui| {
+                    for kind in RenderKind::all() {
+                        ui.selectable_value(&mut render.kind, kind, kind.label());
+                    }
+                });
+            ui.horizontal(|ui| {
+                ui.label("Mesh:");
+                ui.text_edit_singleline(&mut render.mesh);
+            });
+            ui.horizontal(|ui| {
+                ui.label("Material:");
+                ui.text_edit_singleline(&mut render.material);
+            });
+            ui.add(egui::DragValue::new(&mut render.layer).prefix("Layer: "));
+            ui.color_edit_button_rgba_unmultiplied(&mut render.color);
+        }
 
-        if changed {
-            self.mark_dirty("Updated entity");
+        ui.separator();
+        ui.heading("Collider");
+        let mut has_collider = entity.collider.is_some();
+        if ui.checkbox(&mut has_collider, "Enabled").changed() {
+            if has_collider {
+                entity.collider = Some(ColliderComponent::default());
+            } else {
+                entity.collider = None;
+            }
+        }
+        if let Some(collider) = entity.collider.as_mut() {
+            egui::ComboBox::from_label("Shape")
+                .selected_text(collider.shape.label())
+                .show_ui(ui, |ui| {
+                    for shape in ColliderShape::all() {
+                        ui.selectable_value(
+                            &mut collider.shape,
+                            shape,
+                            shape.label(),
+                        );
+                    }
+                });
+            edit_vec3(ui, "Size", &mut collider.size);
+            ui.checkbox(&mut collider.is_trigger, "Is Trigger");
+        }
+
+        ui.separator();
+        ui.heading("Script");
+        let mut has_script = entity.script.is_some();
+        if ui.checkbox(&mut has_script, "Enabled").changed() {
+            if has_script {
+                entity.script = Some(ScriptComponent {
+                    script_path: "scripts/new_script.rs".to_string(),
+                    entry: "update".to_string(),
+                });
+            } else {
+                entity.script = None;
+            }
+        }
+        if let Some(script) = entity.script.as_mut() {
+            ui.horizontal(|ui| {
+                ui.label("Path:");
+                ui.text_edit_singleline(&mut script.script_path);
+            });
+            ui.horizontal(|ui| {
+                ui.label("Entry:");
+                ui.text_edit_singleline(&mut script.entry);
+            });
         }
     }
 
@@ -853,17 +1638,14 @@ impl EditorApp {
             if ui.button("Import File...").clicked() {
                 self.import_asset_dialog();
             }
-            if ui
-                .add_enabled(self.selected_asset.is_some(), egui::Button::new("Remove Selected"))
-                .clicked()
-            {
+            if ui.button("Remove").clicked() {
                 self.remove_selected_asset();
             }
         });
 
         ui.horizontal(|ui| {
             ui.text_edit_singleline(&mut self.import_path_buffer);
-            if ui.button("Add Path").clicked() {
+            if ui.button("Add").clicked() {
                 let path = self.import_path_buffer.trim().to_string();
                 if !path.is_empty() {
                     self.import_asset_from_path(PathBuf::from(path));
@@ -873,7 +1655,7 @@ impl EditorApp {
         });
 
         ui.horizontal(|ui| {
-            ui.label("Filter");
+            ui.label("Filter:");
             ui.text_edit_singleline(&mut self.asset_filter);
         });
         ui.separator();
@@ -881,15 +1663,19 @@ impl EditorApp {
         let filter = self.asset_filter.to_lowercase();
         egui::ScrollArea::vertical().show(ui, |ui| {
             for asset in &self.project.assets {
-                if !filter.is_empty() && !asset.name.to_lowercase().contains(&filter) {
+                if !filter.is_empty()
+                    && !asset.name.to_lowercase().contains(&filter)
+                {
                     continue;
                 }
-
                 let selected = self.selected_asset == Some(asset.id);
                 let label = format!("{} [{}]", asset.name, asset.kind.label());
                 if ui.selectable_label(selected, label).clicked() {
                     self.selected_asset = Some(asset.id);
                 }
+            }
+            if self.project.assets.is_empty() {
+                ui.label("No assets imported.");
             }
         });
     }
@@ -913,14 +1699,22 @@ impl EditorApp {
     }
 
     fn draw_selected_asset(&mut self, ui: &mut egui::Ui) {
-        let selected = self
-            .selected_asset
-            .and_then(|id| self.project.assets.iter_mut().find(|asset| asset.id == id));
+        let selected = self.selected_asset.and_then(|id| {
+            self.project
+                .assets
+                .iter_mut()
+                .find(|asset| asset.id == id)
+        });
 
         if let Some(asset) = selected {
-            let mut changed = false;
-            changed |= ui.text_edit_singleline(&mut asset.name).changed();
-            changed |= ui.text_edit_singleline(&mut asset.path).changed();
+            ui.horizontal(|ui| {
+                ui.label("Name:");
+                ui.text_edit_singleline(&mut asset.name);
+            });
+            ui.horizontal(|ui| {
+                ui.label("Path:");
+                ui.text_edit_singleline(&mut asset.path);
+            });
 
             egui::ComboBox::from_label("Kind")
                 .selected_text(asset.kind.label())
@@ -933,15 +1727,9 @@ impl EditorApp {
                         AssetKind::Script,
                         AssetKind::Other,
                     ] {
-                        changed |= ui
-                            .selectable_value(&mut asset.kind, kind, kind.label())
-                            .changed();
+                        ui.selectable_value(&mut asset.kind, kind, kind.label());
                     }
                 });
-
-            if changed {
-                self.mark_dirty("Updated asset");
-            }
         } else {
             ui.label("No asset selected.");
         }
@@ -966,8 +1754,10 @@ impl EditorApp {
 
         for i in -half..=half {
             let z = i as f32 * grid_size;
-            let from = self.world_to_screen(rect, [-half as f32 * grid_size, 0.0, z]);
-            let to = self.world_to_screen(rect, [half as f32 * grid_size, 0.0, z]);
+            let from =
+                self.world_to_screen(rect, [-half as f32 * grid_size, 0.0, z]);
+            let to =
+                self.world_to_screen(rect, [half as f32 * grid_size, 0.0, z]);
             let stroke = if i == 0 {
                 Stroke::new(1.3, major)
             } else {
@@ -999,7 +1789,11 @@ impl EditorApp {
 
             painter.circle_filled(pos, radius, color);
             if self.selected_entity == Some(entity.id) {
-                painter.circle_stroke(pos, radius + 2.4, Stroke::new(1.8, Color32::from_rgb(255, 220, 120)));
+                painter.circle_stroke(
+                    pos,
+                    radius + 2.4,
+                    Stroke::new(1.8, Color32::from_rgb(255, 220, 120)),
+                );
             }
             painter.text(
                 pos + Vec2::new(10.0, -14.0),
@@ -1062,30 +1856,27 @@ impl EditorApp {
             grid_size: 1.0,
             entities: vec![EntityDocument::default_camera()],
         };
-        self.project.scenes.push(scene);
-        self.selected_scene = self.project.scenes.len() - 1;
+        let index = self.project.scenes.len();
+        self.project.scenes.push(scene.clone());
+        self.push_undo(UndoCommand::AddScene { scene, index });
+        self.selected_scene = index;
         self.selected_entity = None;
-        self.mark_dirty("Added scene");
-    }
-
-    fn remove_selected_scene(&mut self) {
-        if self.project.scenes.len() <= 1 {
-            self.status_line = "At least one scene must exist".to_string();
-            return;
-        }
-
-        self.project.scenes.remove(self.selected_scene);
-        self.selected_scene = self.selected_scene.min(self.project.scenes.len() - 1);
-        self.selected_entity = None;
-        self.mark_dirty("Removed scene");
+        self.dirty = true;
+        self.push_log("Added scene");
     }
 
     fn add_entity(&mut self) {
         let id = self.allocate_id();
         let entity = EntityDocument::default_cube(id);
-        self.active_scene_mut().entities.push(entity);
+        let scene_index = self.selected_scene;
+        self.active_scene_mut().entities.push(entity.clone());
+        self.push_undo(UndoCommand::AddEntity {
+            scene_index,
+            entity,
+        });
         self.selected_entity = Some(id);
-        self.mark_dirty("Added entity");
+        self.dirty = true;
+        self.push_log("Added entity");
     }
 
     fn add_entity_at(&mut self, world_x: f32, world_z: f32) {
@@ -1093,53 +1884,77 @@ impl EditorApp {
         let mut entity = EntityDocument::default_cube(id);
         entity.transform.position[0] = self.snap_value(world_x);
         entity.transform.position[2] = self.snap_value(world_z);
-        self.active_scene_mut().entities.push(entity);
+        let scene_index = self.selected_scene;
+        self.active_scene_mut().entities.push(entity.clone());
+        self.push_undo(UndoCommand::AddEntity {
+            scene_index,
+            entity,
+        });
         self.selected_entity = Some(id);
-        self.mark_dirty("Added entity from viewport");
+        self.dirty = true;
+        self.push_log("Added entity at viewport position");
     }
 
-    fn remove_selected_entity(&mut self) {
-        let Some(entity_id) = self.selected_entity else {
-            return;
-        };
+    fn remove_entity_by_id(&mut self, id: u64) {
+        let scene_index = self.selected_scene;
         let scene = self.active_scene_mut();
-        if let Some(index) = scene.entities.iter().position(|entity| entity.id == entity_id) {
-            scene.entities.remove(index);
+        if let Some(index) = scene.entities.iter().position(|e| e.id == id) {
+            let entity = scene.entities.remove(index);
+            self.push_undo(UndoCommand::RemoveEntity {
+                scene_index,
+                entity,
+                index,
+            });
             self.selected_entity = None;
-            self.mark_dirty("Removed entity");
+            self.dirty = true;
+            self.push_log("Removed entity");
         }
     }
 
     fn duplicate_selected_entity(&mut self) {
-        let Some(entity_id) = self.selected_entity else {
-            return;
+        let id = match self.selected_entity {
+            Some(id) => id,
+            None => return,
         };
-
         let template = self
             .active_scene()
             .entities
             .iter()
-            .find(|entity| entity.id == entity_id)
+            .find(|e| e.id == id)
             .cloned();
-
         if let Some(mut entity) = template {
             entity.id = self.allocate_id();
             entity.name = format!("{} Copy", entity.name);
             entity.transform.position[0] += self.snap_size.max(0.2);
             entity.transform.position[2] += self.snap_size.max(0.2);
             let new_id = entity.id;
-            self.active_scene_mut().entities.push(entity);
+            let scene_index = self.selected_scene;
+            self.active_scene_mut().entities.push(entity.clone());
+            self.push_undo(UndoCommand::DuplicateEntity {
+                scene_index,
+                entity,
+            });
             self.selected_entity = Some(new_id);
-            self.mark_dirty("Duplicated entity");
+            self.dirty = true;
+            self.push_log("Duplicated entity");
         }
     }
 
+    fn get_entity(&self, id: Option<u64>) -> Option<&EntityDocument> {
+        let id = id?;
+        self.active_scene().entities.iter().find(|e| e.id == id)
+    }
+
+    fn selected_entity(&self) -> Option<&EntityDocument> {
+        self.get_entity(self.selected_entity)
+    }
+
     fn selected_entity_mut(&mut self) -> Option<&mut EntityDocument> {
-        let entity_id = self.selected_entity?;
+        let id = self.selected_entity?;
         self.active_scene_mut()
             .entities
             .iter_mut()
-            .find(|entity| entity.id == entity_id)
+            .find(|e| e.id == id)
     }
 
     fn active_scene(&self) -> &SceneDocument {
@@ -1162,7 +1977,7 @@ impl EditorApp {
                 .active_scene()
                 .entities
                 .iter()
-                .any(|entity| entity.id == entity_id);
+                .any(|e| e.id == entity_id);
             if !exists {
                 self.selected_entity = None;
             }
@@ -1177,6 +1992,8 @@ impl EditorApp {
         self.selected_asset = None;
         self.viewport_zoom = 48.0;
         self.viewport_pan = Vec2::ZERO;
+        self.undo_stack.clear();
+        self.redo_stack.clear();
         self.dirty = false;
         self.recompute_next_id();
         self.push_log("Created new project");
@@ -1200,19 +2017,31 @@ impl EditorApp {
                     self.selected_scene = 0;
                     self.selected_entity = None;
                     self.selected_asset = None;
+                    self.undo_stack.clear();
+                    self.redo_stack.clear();
                     self.dirty = false;
                     self.recompute_next_id();
+                    self.show_welcome = false;
+                    self.add_recent_file(path.clone());
                     self.push_log(format!("Opened project {}", display_name(&path)));
                 }
                 Err(err) => {
-                    self.status_line = format!("Failed to parse project: {}", err);
+                    self.status_line = format!("Parse error: {}", err);
                     self.push_log(self.status_line.clone());
                 }
             },
             Err(err) => {
-                self.status_line = format!("Failed to open file: {}", err);
+                self.status_line = format!("Open error: {}", err);
                 self.push_log(self.status_line.clone());
             }
+        }
+    }
+
+    fn add_recent_file(&mut self, path: PathBuf) {
+        self.recent_files.retain(|p| p != &path);
+        self.recent_files.insert(0, path);
+        if self.recent_files.len() > 10 {
+            self.recent_files.truncate(10);
         }
     }
 
@@ -1236,18 +2065,19 @@ impl EditorApp {
         match serde_json::to_string_pretty(&self.project) {
             Ok(serialized) => match fs::write(&path, serialized) {
                 Ok(()) => {
-                    self.project_path = Some(path.clone());
+                    let name = display_name(&path);
+                    self.project_path = Some(path);
                     self.dirty = false;
-                    self.status_line = format!("Saved {}", display_name(&path));
+                    self.status_line = format!("Saved {}", name);
                     self.push_log(self.status_line.clone());
                 }
                 Err(err) => {
-                    self.status_line = format!("Failed to save: {}", err);
+                    self.status_line = format!("Save error: {}", err);
                     self.push_log(self.status_line.clone());
                 }
             },
             Err(err) => {
-                self.status_line = format!("Serialization failed: {}", err);
+                self.status_line = format!("Serialize error: {}", err);
                 self.push_log(self.status_line.clone());
             }
         }
@@ -1261,7 +2091,6 @@ impl EditorApp {
         else {
             return;
         };
-
         self.export_runtime(path);
     }
 
@@ -1287,7 +2116,7 @@ impl EditorApp {
                                 .tags
                                 .split(',')
                                 .map(str::trim)
-                                .filter(|tag| !tag.is_empty())
+                                .filter(|t| !t.is_empty())
                                 .map(ToOwned::to_owned)
                                 .collect(),
                             transform: entity.transform.clone(),
@@ -1303,16 +2132,17 @@ impl EditorApp {
         match serde_json::to_string_pretty(&runtime) {
             Ok(serialized) => match fs::write(&path, serialized) {
                 Ok(()) => {
-                    self.status_line = format!("Exported runtime pack to {}", display_name(&path));
+                    self.status_line =
+                        format!("Exported to {}", display_name(&path));
                     self.push_log(self.status_line.clone());
                 }
                 Err(err) => {
-                    self.status_line = format!("Failed to export runtime pack: {}", err);
+                    self.status_line = format!("Export error: {}", err);
                     self.push_log(self.status_line.clone());
                 }
             },
             Err(err) => {
-                self.status_line = format!("Runtime export serialization failed: {}", err);
+                self.status_line = format!("Export serialize error: {}", err);
                 self.push_log(self.status_line.clone());
             }
         }
@@ -1340,17 +2170,25 @@ impl EditorApp {
         };
         self.project.assets.push(asset);
         self.selected_asset = Some(id);
-        self.mark_dirty(format!("Imported asset {}", name));
+        self.dirty = true;
+        self.push_log(format!("Imported asset {}", name));
     }
 
     fn remove_selected_asset(&mut self) {
-        let Some(asset_id) = self.selected_asset else {
-            return;
+        let id = match self.selected_asset {
+            Some(id) => id,
+            None => return,
         };
-        if let Some(index) = self.project.assets.iter().position(|asset| asset.id == asset_id) {
-            let removed = self.project.assets.remove(index);
+        if let Some(index) = self
+            .project
+            .assets
+            .iter()
+            .position(|a| a.id == id)
+        {
+            self.project.assets.remove(index);
             self.selected_asset = None;
-            self.mark_dirty(format!("Removed asset {}", removed.name));
+            self.dirty = true;
+            self.push_log("Removed asset");
         }
     }
 
@@ -1365,11 +2203,6 @@ impl EditorApp {
                 self.push_log(self.status_line.clone());
             }
         }
-    }
-
-    fn mark_dirty(&mut self, message: impl Into<String>) {
-        self.dirty = true;
-        self.push_log(message.into());
     }
 
     fn push_log(&mut self, message: impl Into<String>) {
@@ -1399,32 +2232,130 @@ impl EditorApp {
     }
 }
 
-fn edit_vec3(ui: &mut egui::Ui, label: &str, value: &mut [f32; 3]) -> bool {
-    let mut changed = false;
-    ui.horizontal(|ui| {
-        ui.label(label);
-        changed |= ui.add(egui::DragValue::new(&mut value[0]).speed(0.05)).changed();
-        changed |= ui.add(egui::DragValue::new(&mut value[1]).speed(0.05)).changed();
-        changed |= ui.add(egui::DragValue::new(&mut value[2]).speed(0.05)).changed();
+fn scenes_hierarchy_ui(ui: &mut egui::Ui, app: &mut EditorApp, filter: &str) {
+    let mut pending: Option<(usize, Option<u64>)> = None;
+    let mut delete_id: Option<u64> = None;
+    let mut rename_id: Option<u64> = None;
+    let mut duplicate_id: Option<u64> = None;
+
+    egui::ScrollArea::vertical().show(ui, |ui| {
+        for (scene_index, scene) in app.project.scenes.iter().enumerate() {
+            let is_open = scene_index == app.selected_scene;
+            let header_text = format!("{} ({})", scene.name, scene.entities.len());
+
+            egui::CollapsingHeader::new(&header_text)
+                .default_open(is_open)
+                .show(ui, |ui| {
+                    let scene_selected =
+                        app.selected_scene == scene_index && app.selected_entity.is_none();
+                    if ui
+                        .selectable_label(scene_selected, "⚙ Scene Settings")
+                        .clicked()
+                    {
+                        pending = Some((scene_index, None));
+                    }
+
+                    for entity in &scene.entities {
+                        if !filter.is_empty()
+                            && !entity.name.to_lowercase().contains(&filter)
+                        {
+                            continue;
+                        }
+                        let selected = app.selected_scene == scene_index
+                            && app.selected_entity == Some(entity.id);
+                        let label = if entity.enabled {
+                            entity.name.clone()
+                        } else {
+                            format!("☐ {}", entity.name)
+                        };
+                        let resp = ui.selectable_label(selected, label);
+                        if resp.clicked() {
+                            pending = Some((scene_index, Some(entity.id)));
+                        }
+                        resp.context_menu(|ui| {
+                            if ui.button("Rename  F2").clicked() {
+                                rename_id = Some(entity.id);
+                                ui.close_menu();
+                            }
+                            if ui.button("Duplicate").clicked() {
+                                duplicate_id = Some(entity.id);
+                                ui.close_menu();
+                            }
+                            if ui.button("Delete  Del").clicked() {
+                                delete_id = Some(entity.id);
+                                ui.close_menu();
+                            }
+                        });
+                    }
+                });
+        }
     });
-    changed
+
+    if let Some(id) = delete_id {
+        app.confirm_delete_entity = Some(id);
+    }
+    if let Some(id) = rename_id {
+        app.selected_entity = Some(id);
+        app.rename_target = Some(id);
+        if let Some(entity) = app.selected_entity() {
+            app.rename_buffer = entity.name.clone();
+        }
+    }
+    if let Some(id) = duplicate_id {
+        app.selected_entity = Some(id);
+        app.duplicate_selected_entity();
+    }
+    if let Some((si, eid)) = pending {
+        app.selected_scene = si;
+        app.selected_entity = eid;
+    }
+
+    if app.rename_target.is_some() {
+        ui.separator();
+        ui.label("Rename:");
+        ui.horizontal(|ui| {
+            ui.text_edit_singleline(&mut app.rename_buffer);
+            if ui.button("✓").clicked() {
+                let target = app.rename_target.take();
+                let new_name = app.rename_buffer.clone();
+                if target.is_some() {
+                    if let Some(entity) = app.selected_entity_mut() {
+                        entity.name = new_name;
+                    }
+                }
+            }
+        });
+    }
 }
 
-fn color_row_rgb(ui: &mut egui::Ui, label: &str, value: &mut [f32; 3]) -> bool {
-    let mut changed = false;
+fn edit_vec3(ui: &mut egui::Ui, label: &str, value: &mut [f32; 3]) {
     ui.horizontal(|ui| {
         ui.label(label);
-        changed |= ui
-            .add(egui::DragValue::new(&mut value[0]).range(0.0..=1.0).speed(0.01))
-            .changed();
-        changed |= ui
-            .add(egui::DragValue::new(&mut value[1]).range(0.0..=1.0).speed(0.01))
-            .changed();
-        changed |= ui
-            .add(egui::DragValue::new(&mut value[2]).range(0.0..=1.0).speed(0.01))
-            .changed();
+        ui.add(egui::DragValue::new(&mut value[0]).speed(0.05));
+        ui.add(egui::DragValue::new(&mut value[1]).speed(0.05));
+        ui.add(egui::DragValue::new(&mut value[2]).speed(0.05));
     });
-    changed
+}
+
+fn color_row_rgb(ui: &mut egui::Ui, label: &str, value: &mut [f32; 3]) {
+    ui.horizontal(|ui| {
+        ui.label(label);
+        ui.add(
+            egui::DragValue::new(&mut value[0])
+                .range(0.0..=1.0)
+                .speed(0.01),
+        );
+        ui.add(
+            egui::DragValue::new(&mut value[1])
+                .range(0.0..=1.0)
+                .speed(0.01),
+        );
+        ui.add(
+            egui::DragValue::new(&mut value[2])
+                .range(0.0..=1.0)
+                .speed(0.01),
+        );
+    });
 }
 
 fn infer_asset_kind(path: &Path) -> AssetKind {
@@ -1454,7 +2385,7 @@ fn display_name(path: &Path) -> String {
 fn unix_now() -> u64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .map(|duration| duration.as_secs())
+        .map(|d| d.as_secs())
         .unwrap_or(0)
 }
 
@@ -1492,7 +2423,12 @@ fn spawn_binary(binary_name: &str) -> Result<(), String> {
             .join("debug")
             .join(format!("{}.exe", binary_name)),
     );
-    candidates.push(manifest.join("target").join("release").join(binary_name));
+    candidates.push(
+        manifest
+            .join("target")
+            .join("release")
+            .join(binary_name),
+    );
     candidates.push(
         manifest
             .join("target")
