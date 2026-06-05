@@ -2,6 +2,7 @@
 name = "vibe-engine"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 description = "A compact cross-platform OpenGL 3D game engine prototype with a procedural space shooter demo."
 default-run = "vibe-engine"
 
