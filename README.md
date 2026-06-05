@@ -73,17 +73,17 @@ trunk build --release --config Trunk.toml
 
 The web build output is written to `dist-web/` and can be deployed to any static hosting provider.
 
-## Manual Editing
+## Documentation
 
-See [MANUAL_CODING_GUIDE.md](MANUAL_CODING_GUIDE.md) for a detailed file-by-file guide on how to edit the engine manually.
+Full documentation is available at **[Elia1995-Official.github.io/Vibe-Engine](https://Elia1995-Official.github.io/Vibe-Engine/)** — built with mdBook and deployed via GitHub Pages.
 
-For a full editor deep dive, see [EDITOR_DOCUMENTATION.md](EDITOR_DOCUMENTATION.md).
-
-Italian guide: [MANUALE_CODIFICA_MANUALE.md](MANUALE_CODIFICA_MANUALE.md).
+Documentation includes:
+- [Editor Documentation](https://Elia1995-Official.github.io/Vibe-Engine/editor.html) — full guide for the Vibe Editor application
+- [Manual Coding Guide](https://Elia1995-Official.github.io/Vibe-Engine/coding-guide.html) — file-by-file walkthrough of the engine source
+- [Guida di Codifica Manuale](https://Elia1995-Official.github.io/Vibe-Engine/coding-guide-it.html) — versione italiana
 
 Documentation rule:
-
-- After each code change, update the relevant documentation files in the same work pass (README and/or manual guides) so behavior, controls, and architecture notes stay aligned with the code.
+- After each code change, update the relevant documentation files in the same work pass so behavior, controls, and architecture notes stay aligned with the code.
 
 Controls:
 
