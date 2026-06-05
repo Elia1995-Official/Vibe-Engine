@@ -44,15 +44,6 @@ enum ToolMode {
 }
 
 impl ToolMode {
-    fn label(self) -> &'static str {
-        match self {
-            ToolMode::Select => "Select",
-            ToolMode::Move => "Move",
-            ToolMode::Rotate => "Rotate",
-            ToolMode::Scale => "Scale",
-        }
-    }
-
     fn all() -> [ToolMode; 4] {
         [
             ToolMode::Select,
@@ -840,29 +831,32 @@ impl EditorApp {
                 let x = start_x + i as f32 * (card_w + gap);
                 let card_rect =
                     Rect::from_min_size(Pos2::new(x, cards_y), Vec2::new(card_w, card_h));
-                let resp = ui.allocate_ui_at_rect(card_rect, |ui| {
-                    let p = ui.painter_at(card_rect);
-                    p.rect_filled(card_rect, 8.0, *bg_color);
-                    p.rect_stroke(
-                        card_rect,
-                        8.0,
-                        Stroke::new(1.0, Color32::from_rgb(90, 100, 140)),
-                    );
-                    p.text(
-                        card_rect.left_center() + Vec2::new(16.0, -10.0),
-                        egui::Align2::LEFT_CENTER,
-                        *title,
-                        FontId::proportional(18.0),
-                        Color32::from_rgb(235, 238, 255),
-                    );
-                    p.text(
-                        card_rect.left_center() + Vec2::new(16.0, 14.0),
-                        egui::Align2::LEFT_CENTER,
-                        *desc,
-                        FontId::proportional(13.0),
-                        Color32::from_rgb(170, 178, 210),
-                    );
-                })
+                let resp = ui.allocate_new_ui(
+                    egui::UiBuilder::new().max_rect(card_rect).sense(egui::Sense::click()),
+                    |ui| {
+                        let p = ui.painter();
+                        p.rect_filled(ui.max_rect(), 8.0, *bg_color);
+                        p.rect_stroke(
+                            ui.max_rect(),
+                            8.0,
+                            Stroke::new(1.0, Color32::from_rgb(90, 100, 140)),
+                        );
+                        p.text(
+                            ui.max_rect().left_center() + Vec2::new(16.0, -10.0),
+                            egui::Align2::LEFT_CENTER,
+                            *title,
+                            FontId::proportional(18.0),
+                            Color32::from_rgb(235, 238, 255),
+                        );
+                        p.text(
+                            ui.max_rect().left_center() + Vec2::new(16.0, 14.0),
+                            egui::Align2::LEFT_CENTER,
+                            *desc,
+                            FontId::proportional(13.0),
+                            Color32::from_rgb(170, 178, 210),
+                        );
+                    },
+                )
                 .response;
 
                 if resp.clicked() {
@@ -898,15 +892,17 @@ impl EditorApp {
                         Pos2::new(center_x - 120.0, y - 12.0),
                         Vec2::new(240.0, 24.0),
                     );
-                    let resp = ui.allocate_ui_at_rect(item_rect, |ui| {
-                        ui.selectable_label(false, display_name(path));
-                    })
-                    .response;
-                    if resp.clicked() {
+                    let inner = ui.allocate_new_ui(
+                        egui::UiBuilder::new().max_rect(item_rect),
+                        |ui| {
+                            ui.selectable_label(false, display_name(path))
+                        },
+                    );
+                    if inner.inner.clicked() {
                         self.show_welcome = false;
                         self.open_project(path.clone());
                     }
-                    if resp.hovered() {
+                    if inner.inner.hovered() {
                         ctx.set_cursor_icon(egui::CursorIcon::PointingHand);
                     }
                 }
