@@ -1,0 +1,1850 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Vibe Engine Documentation</title>
+        <meta name="robots" content="noindex">
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Documentation for the Vibe Engine game engine">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-f3d3496a.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-d8db851b.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Vibe Engine Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="vibe-engine-documentation"><a class="header" href="#vibe-engine-documentation">Vibe Engine Documentation</a></h1>
+<p>Welcome to the Vibe Engine documentation.</p>
+<ul>
+<li>
+<p><strong><a href="#vibe-editor-documentation">Editor Documentation</a></strong> — In-depth guide for the Vibe Editor application: project/scene/entity authoring, runtime export, and extending the editor.</p>
+</li>
+<li>
+<p><strong><a href="#manual-coding-guide">Manual Coding Guide</a></strong> — Detailed file-by-file walkthrough of the engine source code, with instructions on how to modify each module safely.</p>
+</li>
+<li>
+<p><strong><a href="#manuale-di-codifica-manuale">Guida di Codifica Manuale</a></strong> — Versione italiana della guida di codifica manuale.</p>
+</li>
+</ul>
+<hr>
+<h2 id="quick-links"><a class="header" href="#quick-links">Quick Links</a></h2>
+<ul>
+<li><a href="https://github.com/Elia1995-Official/Vibe-Engine">GitHub Repository</a></li>
+<li><a href="https://github.com/Elia1995-Official/Vibe-Engine#readme">README</a></li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="vibe-editor-documentation"><a class="header" href="#vibe-editor-documentation">Vibe Editor Documentation</a></h1>
+<p>This document is the in-depth guide for the standalone Vibe Editor application.</p>
+<p>It explains:</p>
+<ul>
+<li>How the editor is structured internally.</li>
+<li>What each panel does and how interactions work.</li>
+<li>How project data is modeled and serialized.</li>
+<li>How runtime export is produced.</li>
+<li>How to extend the editor safely.</li>
+</ul>
+<p>The implementation described here corresponds to the current code in src/bin/vibe_editor.rs.</p>
+<h2 id="1-purpose-and-scope"><a class="header" href="#1-purpose-and-scope">1) Purpose and Scope</a></h2>
+<p>Vibe Editor is a native GUI tool (eframe/egui) for authoring Vibe Engine content through a scene/entity/component workflow.</p>
+<p>Primary responsibilities:</p>
+<ul>
+<li>Project authoring (metadata and physics/settings).</li>
+<li>Scene authoring (scene list, clear color, ambient, grid).</li>
+<li>Entity authoring (transform and optional components).</li>
+<li>Asset catalog management.</li>
+<li>Runtime pack export for engine-side consumption.</li>
+<li>Launching sibling binaries from the editor (game runtime and launcher app).</li>
+</ul>
+<p>Non-goals in current version:</p>
+<ul>
+<li>No timeline/animation editor.</li>
+<li>No prefab system.</li>
+<li>No built-in script compiler.</li>
+<li>No undo/redo stack.</li>
+<li>No deep in-editor game simulation beyond a UI-level preview toggle.</li>
+</ul>
+<h2 id="2-high-level-architecture"><a class="header" href="#2-high-level-architecture">2) High-Level Architecture</a></h2>
+<h3 id="21-main-app-state"><a class="header" href="#21-main-app-state">2.1 Main app state</a></h3>
+<p>The editor is modeled as a single stateful app struct:</p>
+<ul>
+<li>EditorApp holds project data, UI state, viewport state, selection state, status/logging, and ID allocation.</li>
+</ul>
+<p>Core fields include:</p>
+<ul>
+<li>project: full editable project document.</li>
+<li>project_path: save/open target path.</li>
+<li>selected_scene, selected_entity, selected_asset: active selections.</li>
+<li>hierarchy_filter, asset_filter: list filtering state.</li>
+<li>tool_mode: Select / Move / Rotate / Scale (only Move is currently behaviorally active in viewport).</li>
+<li>viewport_zoom, viewport_pan: camera controls for 2D top projection.</li>
+<li>snap_enabled, snap_size, show_grid: placement aids.</li>
+<li>play_mode: UI toggle for preview state.</li>
+<li>dirty: unsaved-changes flag.</li>
+<li>status_line + console: user-visible diagnostics/event trace.</li>
+<li>next_id: monotonic ID allocator.</li>
+</ul>
+<h3 id="22-frameupdate-lifecycle"><a class="header" href="#22-frameupdate-lifecycle">2.2 Frame/update lifecycle</a></h3>
+<p>Each frame, update executes this order:</p>
+<ol>
+<li>ensure_valid_selection</li>
+<li>show_top_bar</li>
+<li>show_bottom_panel</li>
+<li>show_hierarchy_panel</li>
+<li>show_inspector_panel</li>
+<li>show_viewport</li>
+</ol>
+<p>This order is important:</p>
+<ul>
+<li>Selection normalization happens before panel reads/writes.</li>
+<li>Panels mutate shared app state directly.</li>
+<li>Viewport interactions can change selection and transform values last in frame.</li>
+</ul>
+<h2 id="3-data-model"><a class="header" href="#3-data-model">3) Data Model</a></h2>
+<p>All project-side data is serde-serializable JSON.</p>
+<h3 id="31-projectdocument"><a class="header" href="#31-projectdocument">3.1 ProjectDocument</a></h3>
+<p>Contains:</p>
+<ul>
+<li>name, author, engine_version</li>
+<li>created_unix, modified_unix</li>
+<li>notes</li>
+<li>settings: ProjectSettings</li>
+<li>scenes: Vec<scenedocument></scenedocument></li>
+<li>assets: Vec<assetdocument></assetdocument></li>
+</ul>
+<p>Default project creates one scene and no assets.</p>
+<h3 id="32-projectsettings"><a class="header" href="#32-projectsettings">3.2 ProjectSettings</a></h3>
+<p>Current editable settings:</p>
+<ul>
+<li>startup_scene (string)</li>
+<li>gravity (f32)</li>
+<li>fixed_timestep (f32)</li>
+<li>lighting_quality (string)</li>
+</ul>
+<h3 id="33-scenedocument"><a class="header" href="#33-scenedocument">3.3 SceneDocument</a></h3>
+<p>Contains:</p>
+<ul>
+<li>id</li>
+<li>name</li>
+<li>ambient_light [r,g,b]</li>
+<li>clear_color [r,g,b]</li>
+<li>grid_size</li>
+<li>entities</li>
+</ul>
+<p>Default scene includes a default camera entity.</p>
+<h3 id="34-entitydocument-and-components"><a class="header" href="#34-entitydocument-and-components">3.4 EntityDocument and components</a></h3>
+<p>Entity fields:</p>
+<ul>
+<li>id</li>
+<li>name</li>
+<li>enabled</li>
+<li>tags (comma-separated string in project format)</li>
+<li>transform (always present)</li>
+<li>render (optional)</li>
+<li>collider (optional)</li>
+<li>script (optional)</li>
+</ul>
+<p>Components:</p>
+<ul>
+<li>TransformComponent: position/rotation/scale, each as [f32; 3].</li>
+<li>RenderComponent:
+<ul>
+<li>kind: Mesh | Sprite | Light</li>
+<li>mesh path</li>
+<li>material path</li>
+<li>color [f32; 4]</li>
+<li>layer i32</li>
+</ul>
+</li>
+<li>ColliderComponent:
+<ul>
+<li>shape: Box | Sphere | Capsule</li>
+<li>size [f32; 3]</li>
+<li>is_trigger</li>
+</ul>
+</li>
+<li>ScriptComponent:
+<ul>
+<li>script_path</li>
+<li>entry</li>
+</ul>
+</li>
+</ul>
+<h3 id="35-assetdocument"><a class="header" href="#35-assetdocument">3.5 AssetDocument</a></h3>
+<p>Asset catalog items include:</p>
+<ul>
+<li>id</li>
+<li>name</li>
+<li>path</li>
+<li>kind: Texture | Mesh | Material | Audio | Script | Other</li>
+</ul>
+<p>Kind can be inferred by extension on import and manually changed in Inspector.</p>
+<h2 id="4-ui-layout-and-panel-behavior"><a class="header" href="#4-ui-layout-and-panel-behavior">4) UI Layout and Panel Behavior</a></h2>
+<p>The editor uses a multi-panel desktop layout:</p>
+<ul>
+<li>Top bar: menus + toolbar controls.</li>
+<li>Left panel: Hierarchy.</li>
+<li>Right panel: Inspector.</li>
+<li>Bottom panel: Asset Browser + Console split.</li>
+<li>Center: Viewport.</li>
+</ul>
+<h3 id="41-top-bar"><a class="header" href="#41-top-bar">4.1 Top bar</a></h3>
+<p>File menu:</p>
+<ul>
+<li>New Project</li>
+<li>Open Project…</li>
+<li>Save</li>
+<li>Save As…</li>
+<li>Export Runtime Pack…</li>
+<li>Quit</li>
+</ul>
+<p>Project menu:</p>
+<ul>
+<li>Launch Game Collection (vibe-engine)</li>
+<li>Launch Launcher App (vibe-launcher)</li>
+<li>Create Scene</li>
+<li>Create Entity</li>
+</ul>
+<p>Toolbar controls:</p>
+<ul>
+<li>Tool mode toggles.</li>
+<li>Play Preview / Stop Preview.</li>
+<li>Grid toggle.</li>
+<li>Snap toggle and snap step value.</li>
+<li>Quick actions: + Entity, Import Asset.</li>
+</ul>
+<h3 id="42-hierarchy-panel"><a class="header" href="#42-hierarchy-panel">4.2 Hierarchy panel</a></h3>
+<p>Capabilities:</p>
+<ul>
+<li>Add/remove scenes.</li>
+<li>Add/duplicate/delete entities.</li>
+<li>Text filter for entity names.</li>
+<li>Scene collapsible groups with entity counts.</li>
+<li>Scene-level “Scene Settings” pseudo-item to switch inspector context.</li>
+</ul>
+<p>Selection semantics:</p>
+<ul>
+<li>Selecting a scene settings row clears selected_entity.</li>
+<li>Selecting entity sets both selected_scene and selected_entity.</li>
+</ul>
+<h3 id="43-inspector-panel"><a class="header" href="#43-inspector-panel">4.3 Inspector panel</a></h3>
+<p>Dual-context behavior:</p>
+<ul>
+<li>If entity selected: entity + components inspector.</li>
+<li>If no entity selected: scene + project inspector.</li>
+</ul>
+<p>Entity inspector operations:</p>
+<ul>
+<li>Rename, enable toggle, tags edit.</li>
+<li>Transform edit via numeric DragValue fields.</li>
+<li>Per-component enable/disable toggles for Render, Collider, Script.</li>
+<li>Component-specific field editing.</li>
+</ul>
+<p>Scene/project inspector operations:</p>
+<ul>
+<li>Scene name, grid size, ambient and clear color edits.</li>
+<li>Project metadata/settings/notes edits.</li>
+</ul>
+<p>All edits mark project dirty and append a timestamped log entry.</p>
+<h3 id="44-bottom-panel"><a class="header" href="#44-bottom-panel">4.4 Bottom panel</a></h3>
+<p>Left column: Asset Browser</p>
+<ul>
+<li>Import File…</li>
+<li>Remove Selected</li>
+<li>Add Path (manual path text input)</li>
+<li>Filter list by asset name</li>
+<li>Select asset to inspect/edit on right panel</li>
+</ul>
+<p>Right column: Console</p>
+<ul>
+<li>Shows status line and timestamped action log.</li>
+<li>Clear button resets console history.</li>
+</ul>
+<h3 id="45-viewport"><a class="header" href="#45-viewport">4.5 Viewport</a></h3>
+<p>The viewport draws a top-down projected scene:</p>
+<ul>
+<li>Background uses scene clear color.</li>
+<li>Optional grid overlay using scene grid_size.</li>
+<li>Entities drawn as circles with labels.</li>
+<li>Selected entity receives highlight ring.</li>
+</ul>
+<p>Interactions:</p>
+<ul>
+<li>Mouse wheel while hovered: zoom in/out (clamped).</li>
+<li>Left click: select nearest entity within hit radius.</li>
+<li>Left drag in Move mode: move selected entity on X/Z plane.</li>
+<li>Double click: create entity at cursor world position.</li>
+<li>Middle mouse drag: pan viewport.</li>
+</ul>
+<p>Coordinate transforms:</p>
+<ul>
+<li>world_to_screen and screen_to_world handle mapping.</li>
+<li>snap_value rounds X/Z positions when snap is enabled.</li>
+</ul>
+<h2 id="5-state-integrity-and-safety-rules"><a class="header" href="#5-state-integrity-and-safety-rules">5) State Integrity and Safety Rules</a></h2>
+<h3 id="51-selection-safety"><a class="header" href="#51-selection-safety">5.1 Selection safety</a></h3>
+<p>ensure_valid_selection enforces invariants each frame:</p>
+<ul>
+<li>At least one scene exists.</li>
+<li>selected_scene index remains in range.</li>
+<li>selected_entity is cleared if entity no longer exists.</li>
+</ul>
+<p>This avoids stale references after delete/open/new operations.</p>
+<h3 id="52-stable-ids"><a class="header" href="#52-stable-ids">5.2 Stable IDs</a></h3>
+<p>ID behavior:</p>
+<ul>
+<li>allocate_id returns next_id then increments.</li>
+<li>recompute_next_id scans all scene/entity/asset IDs and sets max+1.</li>
+</ul>
+<p>Recompute is called after default init, new project, and project open to avoid collisions.</p>
+<h3 id="53-dirty-tracking-and-logs"><a class="header" href="#53-dirty-tracking-and-logs">5.3 Dirty tracking and logs</a></h3>
+<p>mark_dirty:</p>
+<ul>
+<li>Sets dirty true.</li>
+<li>Pushes timestamped log entry via push_log.</li>
+</ul>
+<p>Write/save success clears dirty.</p>
+<h2 id="6-file-io-and-serialization"><a class="header" href="#6-file-io-and-serialization">6) File I/O and Serialization</a></h2>
+<h3 id="61-project-saveopen"><a class="header" href="#61-project-saveopen">6.1 Project save/open</a></h3>
+<p>Project files are JSON and written pretty-formatted.</p>
+<p>Open flow:</p>
+<ul>
+<li>Read file to string.</li>
+<li>Deserialize to ProjectDocument.</li>
+<li>Reset selections and dirty state.</li>
+<li>Recompute IDs.</li>
+</ul>
+<p>Save flow:</p>
+<ul>
+<li>Save uses current path if known.</li>
+<li>Save As prompts for path (default filename project.vibe.json).</li>
+<li>modified_unix updated before serialization.</li>
+</ul>
+<p>Errors are surfaced through status_line and console.</p>
+<h3 id="62-runtime-pack-export"><a class="header" href="#62-runtime-pack-export">6.2 Runtime pack export</a></h3>
+<p>Export dialog writes JSON (default filename runtime_pack.json).</p>
+<p>Export transformation:</p>
+<ul>
+<li>Project-level output keeps project_name and exported_unix.</li>
+<li>Scenes map to RuntimeScene with ambient/clear and entities.</li>
+<li>Entity tags string is split by comma, trimmed, and empty tags removed.</li>
+<li>Component payloads are passed through as optional structs.</li>
+</ul>
+<p>This intentionally flattens project editing metadata into runtime-ready content.</p>
+<h2 id="7-runtime-integration-and-process-launching"><a class="header" href="#7-runtime-integration-and-process-launching">7) Runtime Integration and Process Launching</a></h2>
+<p>The editor can launch other binaries.</p>
+<p>launch_binary uses spawn_binary with multi-path probing:</p>
+<ul>
+<li>Adjacent to current executable.</li>
+<li>target/debug and target/release.</li>
+<li>Windows .exe variants.</li>
+<li>Final fallback: cargo run –bin <name>.</name></li>
+</ul>
+<p>This improves resilience in dev and packaged contexts.</p>
+<h2 id="8-asset-import-behavior"><a class="header" href="#8-asset-import-behavior">8) Asset Import Behavior</a></h2>
+<p>Import paths can come from file dialog or typed path input.</p>
+<p>infer_asset_kind extension mapping:</p>
+<ul>
+<li>Texture: png/jpg/jpeg/webp/bmp/tga</li>
+<li>Mesh: obj/fbx/gltf/glb</li>
+<li>Audio: wav/ogg/mp3/flac</li>
+<li>Material: mat/material</li>
+<li>Script: rs/lua/js/ts</li>
+<li>Else: Other</li>
+</ul>
+<p>Imported asset name defaults to file stem.</p>
+<h2 id="9-practical-workflows"><a class="header" href="#9-practical-workflows">9) Practical Workflows</a></h2>
+<h3 id="91-create-a-new-playable-scene-draft"><a class="header" href="#91-create-a-new-playable-scene-draft">9.1 Create a new playable scene draft</a></h3>
+<ol>
+<li>New Project.</li>
+<li>Create Scene and set clear/ambient color.</li>
+<li>Add Entity in hierarchy or double click viewport.</li>
+<li>Select Move tool and place entities using snap.</li>
+<li>Enable/configure Render and Collider in Inspector.</li>
+<li>Add Script component where needed.</li>
+<li>Import referenced assets in Asset Browser.</li>
+<li>Save project.</li>
+<li>Export Runtime Pack.</li>
+</ol>
+<h3 id="92-fast-blockout-pass"><a class="header" href="#92-fast-blockout-pass">9.2 Fast blockout pass</a></h3>
+<ol>
+<li>Keep snap enabled and set larger step.</li>
+<li>Use duplicate entity for repeated props.</li>
+<li>Pan + zoom to place groups quickly.</li>
+<li>Use filters in hierarchy to focus on subset.</li>
+</ol>
+<h3 id="93-data-sanity-pass-before-export"><a class="header" href="#93-data-sanity-pass-before-export">9.3 Data sanity pass before export</a></h3>
+<ol>
+<li>Ensure startup_scene matches an existing scene name.</li>
+<li>Ensure asset paths and script paths are valid for your runtime layout.</li>
+<li>Verify tags use comma-separated semantics.</li>
+<li>Export runtime pack and inspect in web runtime inspector.</li>
+</ol>
+<h2 id="10-runtime-pack-compatibility-notes"><a class="header" href="#10-runtime-pack-compatibility-notes">10) Runtime Pack Compatibility Notes</a></h2>
+<p>The web frontend includes a runtime pack inspector that parses exported JSON and reports:</p>
+<ul>
+<li>Scene count</li>
+<li>Entity count</li>
+<li>Script/render/collider component counts</li>
+<li>Scene name list</li>
+</ul>
+<p>If parse fails, error text is shown directly in the web UI.</p>
+<p>This gives a lightweight validation pass without launching native game runtime.</p>
+<h2 id="11-extension-guide-for-developers"><a class="header" href="#11-extension-guide-for-developers">11) Extension Guide for Developers</a></h2>
+<h3 id="111-add-a-new-entity-component-type"><a class="header" href="#111-add-a-new-entity-component-type">11.1 Add a new entity component type</a></h3>
+<p>Recommended change sequence:</p>
+<ol>
+<li>Add component struct and optional field to EntityDocument.</li>
+<li>Add inspector section for enable toggle + field editors.</li>
+<li>Extend RuntimeEntity export struct and export mapping.</li>
+<li>Ensure serialization derives are present.</li>
+<li>Confirm open/save/export backward compatibility.</li>
+</ol>
+<h3 id="112-add-a-new-asset-kind"><a class="header" href="#112-add-a-new-asset-kind">11.2 Add a new asset kind</a></h3>
+<ol>
+<li>Extend AssetKind enum and label().</li>
+<li>Update inspector ComboBox list.</li>
+<li>Update infer_asset_kind extension mapping.</li>
+</ol>
+<h3 id="113-add-true-behavior-for-rotatescale-tool-modes"><a class="header" href="#113-add-true-behavior-for-rotatescale-tool-modes">11.3 Add true behavior for Rotate/Scale tool modes</a></h3>
+<p>Current viewport interaction branch only applies Move mode transforms.</p>
+<p>To extend:</p>
+<ol>
+<li>Add drag handling branches for Rotate and Scale.</li>
+<li>Add visual gizmos/handles in draw_entities or dedicated draw pass.</li>
+<li>Respect snap settings or add independent rotational snap settings.</li>
+</ol>
+<h3 id="114-add-undoredo"><a class="header" href="#114-add-undoredo">11.4 Add undo/redo</a></h3>
+<p>Current model is direct mutation. For undo/redo:</p>
+<ol>
+<li>Introduce command/event history stack.</li>
+<li>Route all mutating operations through command dispatcher.</li>
+<li>Encode inverse operations for each command.</li>
+<li>Integrate keyboard shortcuts and menu entries.</li>
+</ol>
+<h2 id="12-current-limitations-and-design-tradeoffs"><a class="header" href="#12-current-limitations-and-design-tradeoffs">12) Current Limitations and Design Tradeoffs</a></h2>
+<ul>
+<li>play_mode is a UI flag and log signal, not a full simulation loop.</li>
+<li>No hard referential integrity checks between entity render/script paths and asset entries.</li>
+<li>No per-scene local asset scoping.</li>
+<li>Tags are stored as a single CSV string in project format, transformed to list on export.</li>
+<li>No validation warning panel yet (only status + console messages).</li>
+</ul>
+<p>These tradeoffs keep the editor simple and fast to iterate while preserving a useful authoring baseline.</p>
+<h2 id="13-troubleshooting"><a class="header" href="#13-troubleshooting">13) Troubleshooting</a></h2>
+<h3 id="problem-could-not-saveopen-project"><a class="header" href="#problem-could-not-saveopen-project">Problem: Could not save/open project</a></h3>
+<p>Check:</p>
+<ul>
+<li>File permissions.</li>
+<li>Parent directory existence.</li>
+<li>JSON validity when opening manually edited files.</li>
+</ul>
+<p>The status line and console include exact error strings.</p>
+<h3 id="problem-entity-appears-unselectable-in-viewport"><a class="header" href="#problem-entity-appears-unselectable-in-viewport">Problem: Entity appears unselectable in viewport</a></h3>
+<p>Check:</p>
+<ul>
+<li>Zoom level and pan offset.</li>
+<li>Whether entity exists in selected scene.</li>
+<li>Selection radius is proximity-based in screen space.</li>
+</ul>
+<h3 id="problem-runtime-pack-parses-in-editor-export-but-fails-in-downstream-consumer"><a class="header" href="#problem-runtime-pack-parses-in-editor-export-but-fails-in-downstream-consumer">Problem: Runtime pack parses in editor export but fails in downstream consumer</a></h3>
+<p>Check:</p>
+<ul>
+<li>Script/asset path expectations in runtime.</li>
+<li>Enum/string expectations in consumer parser.</li>
+<li>Tag formatting assumptions (CSV in project, list in runtime export).</li>
+</ul>
+<h2 id="14-source-map-implementation-anchors"><a class="header" href="#14-source-map-implementation-anchors">14) Source Map (Implementation Anchors)</a></h2>
+<p>Primary file:</p>
+<ul>
+<li>src/bin/vibe_editor.rs</li>
+</ul>
+<p>Notable anchors:</p>
+<ul>
+<li>ProjectDocument definition</li>
+<li>SceneDocument definition</li>
+<li>EntityDocument definition</li>
+<li>RuntimeExport definition</li>
+<li>EditorApp definition</li>
+<li>show_top_bar</li>
+<li>show_hierarchy_panel</li>
+<li>show_inspector_panel</li>
+<li>show_bottom_panel</li>
+<li>show_viewport</li>
+<li>draw_scene_and_project_inspector</li>
+<li>draw_entity_inspector</li>
+<li>draw_asset_browser</li>
+<li>draw_console</li>
+<li>draw_selected_asset</li>
+<li>draw_grid</li>
+<li>draw_entities</li>
+<li>select_entity_at_screen</li>
+<li>ensure_valid_selection</li>
+<li>save/open/export/import functions</li>
+<li>spawn_binary helper</li>
+</ul>
+<p>Related runtime-pack consumer for cross-checking export compatibility:</p>
+<ul>
+<li>src/bin/vibe_web.rs</li>
+<li>draw_runtime_pack</li>
+<li>parse_runtime_pack</li>
+</ul>
+<h2 id="15-recommended-next-improvements"><a class="header" href="#15-recommended-next-improvements">15) Recommended Next Improvements</a></h2>
+<ul>
+<li>Add validation panel with structured warnings/errors before export.</li>
+<li>Add undo/redo command stack.</li>
+<li>Add true transform gizmos for rotate/scale.</li>
+<li>Add scene/entity search by tags and component presence.</li>
+<li>Add per-asset metadata (import settings, compression, bundles).</li>
+<li>Add runtime pack schema version field for forward compatibility.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="manual-coding-guide"><a class="header" href="#manual-coding-guide">Manual Coding Guide</a></h1>
+<p>This guide explains how to edit the Vibe Engine files by hand without getting lost in the project structure. The project is intentionally small, but it is split into modules so gameplay, rendering, UI, shaders, and procedural generation can evolve independently.</p>
+<h2 id="first-rules"><a class="header" href="#first-rules">First Rules</a></h2>
+<ul>
+<li>Run <code>cargo fmt</code> after editing Rust files.</li>
+<li>Run <code>cargo check</code> for fast compile validation.</li>
+<li>Run <code>cargo run</code> when you want to test the game collection runtime.</li>
+<li>Run <code>cargo run --bin vibe-editor</code> for the standalone editor GUI.</li>
+<li>Run <code>cargo run --bin vibe-launcher</code> for the standalone launcher GUI.</li>
+<li>Run <code>cargo run --bin vibe-web</code> for native preview of the web/WASM frontend.</li>
+<li>Run <code>trunk serve --config Trunk.toml</code> to test the actual browser WASM build.</li>
+<li>After every completed code task, update the relevant documentation (at minimum <code>README.md</code> and this guide when applicable).</li>
+<li>Prefer changing one system at a time: gameplay in <code>game.rs</code>, visuals in <code>renderer.rs</code>, generated meshes in <code>procedural.rs</code>, menu layout in <code>ui.rs</code>.</li>
+<li>Keep keyboard bindings in <code>src/keybindings.rs</code> so <code>main.rs</code> stays focused on event routing.</li>
+<li>If you add a new <code>.rs</code> file in <code>src</code>, declare it near the top of <code>src/main.rs</code> with <code>mod your_file_name;</code>.</li>
+</ul>
+<h2 id="file-map"><a class="header" href="#file-map">File Map</a></h2>
+<h3 id="srcmainrs"><a class="header" href="#srcmainrs"><code>src/main.rs</code></a></h3>
+<p>This is the application bootstrap and event loop.</p>
+<p>Edit this file when you want to:</p>
+<ul>
+<li>Add a new global screen or mode, such as <code>Pause</code>, <code>Settings</code>, or <code>GameOverMenu</code>.</li>
+<li>Change keyboard or mouse handling.</li>
+<li>Change cursor behavior when entering or leaving gameplay.</li>
+<li>Change the window title or starting resolution.</li>
+<li>Decide which renderer function is called for each app state.</li>
+</ul>
+<p>Important sections:</p>
+<ul>
+<li><code>mod app; mod config; ...</code>: module declarations.</li>
+<li><code>enter_game(...)</code>: transition from menu to gameplay.</li>
+<li><code>enter_menu(...)</code>: transition from gameplay back to menu.</li>
+<li><code>WindowEvent::KeyboardInput</code>: keyboard bindings.</li>
+<li><code>WindowEvent::MouseInput</code>: mouse click handling.</li>
+<li><code>WindowEvent::RedrawRequested</code>: update and draw loop.</li>
+</ul>
+<p>Keyboard bindings are now centralized in <code>src/keybindings.rs</code>. <code>main.rs</code> should route keyboard events there instead of growing a second copy of the input switch.</p>
+<h3 id="srckeybindingsrs"><a class="header" href="#srckeybindingsrs"><code>src/keybindings.rs</code></a></h3>
+<p>This file owns all keyboard shortcuts and game/menu transitions.</p>
+<p>Edit this file when you want to:</p>
+<ul>
+<li>Change global keyboard shortcuts like Escape, Enter, Space, F1, or R.</li>
+<li>Change how a game starts from its menu.</li>
+<li>Change how keyboard input maps to gameplay flags in each mode.</li>
+<li>Add or remove key-driven menu navigation.</li>
+</ul>
+<p>Important responsibilities:</p>
+<ul>
+<li>Handles <code>SnakeDirection</code> mapping from arrow keys and WASD.</li>
+<li>Routes Space Shooter, Snake, FPS, and Platformer menu starts.</li>
+<li>Handles Escape-to-menu and Escape-to-quit behavior.</li>
+<li>Updates <code>Input</code> flags for FPS and Platformer movement.</li>
+</ul>
+<p>Keep mouse handling in <code>main.rs</code>; keep keyboard binding logic here.</p>
+<h3 id="srcbinvibe_editorrs"><a class="header" href="#srcbinvibe_editorrs"><code>src/bin/vibe_editor.rs</code></a></h3>
+<p>This file is a full standalone editor application (separate process from the game runtime).</p>
+<p>Edit this file when you want to:</p>
+<ul>
+<li>Change editor layout and panels (Hierarchy, Inspector, Viewport, Asset Browser, Console).</li>
+<li>Change project save/load/export behavior.</li>
+<li>Change editor tools (selection, move, rotate, scale).</li>
+<li>Change how entities and assets are created and edited.</li>
+<li>Change launcher hooks used by the editor to run <code>vibe-engine</code> or <code>vibe-launcher</code>.</li>
+</ul>
+<h3 id="srcbinvibe_launcherrs"><a class="header" href="#srcbinvibe_launcherrs"><code>src/bin/vibe_launcher.rs</code></a></h3>
+<p>This file is a standalone launcher GUI.</p>
+<p>Edit this file when you want to:</p>
+<ul>
+<li>Change launcher UI and startup flow.</li>
+<li>Add new quick actions (build, open repo folder, open docs).</li>
+<li>Change process-launch behavior for runtime/editor binaries.</li>
+</ul>
+<h3 id="srcbinvibe_webrs"><a class="header" href="#srcbinvibe_webrs"><code>src/bin/vibe_web.rs</code></a></h3>
+<p>This file is the browser-targeted WASM frontend.</p>
+<p>Edit this file when you want to:</p>
+<ul>
+<li>Change web UI layout for Home/Runtime Pack/Build tabs.</li>
+<li>Change runtime pack validation logic in the browser.</li>
+<li>Change web-specific startup behavior (<code>eframe::WebRunner</code>) and canvas bootstrapping.</li>
+</ul>
+<p>Web build infrastructure:</p>
+<ul>
+<li><code>web/index.html</code>: Trunk entry page and canvas host element.</li>
+<li><code>Trunk.toml</code>: Trunk build/serve configuration.</li>
+</ul>
+<p>Example: change the window title:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new()
+    .with_title("My Space Game")
+    .with_inner_size(1280, 720)
+    .build(&amp;event_loop);
+<span class="boring">}</span></code></pre>
+<p>Example: add a new key binding:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>PhysicalKey::Code(KeyCode::KeyP) if pressed =&gt; {
+    // Toggle pause here after adding a Pause app state.
+}
+<span class="boring">}</span></code></pre>
+<h3 id="srcapprs"><a class="header" href="#srcapprs"><code>src/app.rs</code></a></h3>
+<p>This file stores app-level state.</p>
+<p>Edit this file when you want to:</p>
+<ul>
+<li>Add a new app screen to <code>AppState</code>.</li>
+<li>Add new input flags to <code>Input</code>.</li>
+<li>Change the default mouse position or initial input state.</li>
+</ul>
+<p>Current states:</p>
+<ul>
+<li><code>GameSelect</code>: main menu showing all game choices.</li>
+<li><code>SpaceMenu</code>, <code>SpacePlaying</code>: Space Shooter menu and gameplay.</li>
+<li><code>SnakeMenu</code>, <code>SnakePlaying</code>: 3D Snake menu and gameplay.</li>
+<li><code>FpsMenu</code>, <code>FpsPlaying</code>: FPS Arena menu and gameplay.</li>
+<li><code>PlatformerMenu</code>, <code>PlatformerPlaying</code>: 3D Platformer menu and gameplay.</li>
+</ul>
+<p>Example: add a pause state:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub enum AppState {
+    GameSelect,
+    SpaceMenu,
+    SpacePlaying,
+    Paused,
+}
+<span class="boring">}</span></code></pre>
+<p>After adding a state, update <code>main.rs</code> so the event loop knows how to render and transition to it.</p>
+<h3 id="srcconfigrs"><a class="header" href="#srcconfigrs"><code>src/config.rs</code></a></h3>
+<p>This file contains shared gameplay and rendering constants.</p>
+<p>Edit this file when you want quick balance changes:</p>
+<ul>
+<li><code>WORLD_HALF_WIDTH</code>: horizontal playable area.</li>
+<li><code>WORLD_HALF_HEIGHT</code>: vertical playable area.</li>
+<li><code>PLAYER_Z</code>: player depth.</li>
+<li><code>BULLET_SPEED</code>: shot speed.</li>
+<li><code>ASTEROID_SPEED</code>: base asteroid speed.</li>
+<li><code>STAR_LAYERS</code>: number of parallax star layers.</li>
+<li><code>STAR_COUNT_PER_LAYER</code>: stars per layer.</li>
+</ul>
+<p>Example: make the game faster:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub const BULLET_SPEED: f32 = 34.0;
+pub const ASTEROID_SPEED: f32 = 11.0;
+<span class="boring">}</span></code></pre>
+<p>Changing constants is usually the safest first edit because it rarely requires touching other files.</p>
+<h3 id="srcgamers"><a class="header" href="#srcgamers"><code>src/game.rs</code></a></h3>
+<p>This file owns the shooter gameplay simulation.</p>
+<p>Edit this file when you want to:</p>
+<ul>
+<li>Change player health.</li>
+<li>Change shooting cooldown.</li>
+<li>Change enemy spawning.</li>
+<li>Add new enemy behavior.</li>
+<li>Change collision rules.</li>
+<li>Change scoring.</li>
+<li>Add powerups or pickups.</li>
+</ul>
+<p>Important structs:</p>
+<ul>
+<li><code>Game</code>: the full simulation state.</li>
+<li><code>Player</code>: ship position, target, cooldown, health.</li>
+<li><code>Bullet</code>: bullet position.</li>
+<li><code>Asteroid</code>: enemy position, velocity, radius, rotation, mesh selection.</li>
+</ul>
+<p>Important functions:</p>
+<ul>
+<li><code>Game::new()</code>: initial game state.</li>
+<li><code>Game::update(...)</code>: all per-frame gameplay simulation.</li>
+</ul>
+<p>Example: change starting health:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>health: 8,
+<span class="boring">}</span></code></pre>
+<p>Example: change firing rate:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>self.player.cooldown = 0.08;
+<span class="boring">}</span></code></pre>
+<p>Lower cooldown means faster shooting.</p>
+<p>Example: make asteroids spawn less often:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>self.spawn_timer = self.rng.gen_range(0.45..1.05) / difficulty.min(3.5);
+<span class="boring">}</span></code></pre>
+<p>Example: change score per asteroid:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>self.score += 25;
+<span class="boring">}</span></code></pre>
+<p>When editing <code>Game::update</code>, keep this rough order:</p>
+<ol>
+<li>Handle game-over restart.</li>
+<li>Update player target and movement.</li>
+<li>Spawn bullets.</li>
+<li>Move bullets.</li>
+<li>Spawn asteroids.</li>
+<li>Move asteroids.</li>
+<li>Resolve bullet collisions.</li>
+<li>Resolve player collisions.</li>
+<li>Remove destroyed or off-screen entities.</li>
+</ol>
+<p>That order keeps the simulation predictable.</p>
+<h3 id="srcfps_gamers"><a class="header" href="#srcfps_gamers"><code>src/fps_game.rs</code></a></h3>
+<p>This file owns the FPS Arena gameplay simulation.</p>
+<p>Edit this file when you want to:</p>
+<ul>
+<li>Change indoor or outdoor map generation.</li>
+<li>Tune FPS movement, aiming, enemy chase speed, and damage.</li>
+<li>Adjust map progression and level scaling.</li>
+<li>Tune wall collision behavior for player or enemies.</li>
+<li>Change line-of-sight and hit registration.</li>
+</ul>
+<p>Important fields and concepts:</p>
+<ul>
+<li><code>map</code>: collision map (<code>true</code> means solid wall).</li>
+<li><code>map_type</code>: alternates between <code>Indoor</code> and <code>Outdoor</code> by level.</li>
+<li><code>indoor_doors</code>: passable doorway cells carved from indoor walls.</li>
+<li><code>indoor_windows</code>: solid wall cells rendered with glass windows.</li>
+<li>Enemy steering state: velocity, wander angle, strafe sign, and heading for natural motion.</li>
+<li><code>rng</code>: seeded randomly at game startup so procedural FPS maps differ each run.</li>
+</ul>
+<p>Important functions:</p>
+<ul>
+<li><code>generate_level()</code>: creates indoor mazes or outdoor arenas.</li>
+<li><code>try_move(...)</code>: player movement with wall collision.</li>
+<li><code>update_enemies(...)</code>: steering AI blend (pursuit, orbit/strafe, wander, separation) with radius-aware substep collision.</li>
+<li><code>has_line_of_sight(...)</code>: ray-march check used by shooting.</li>
+</ul>
+<p>Collision note:</p>
+<ul>
+<li>FPS shooting and enemy-player contact use oriented-box tests against enemy heading so collision follows the rendered enemy mesh footprint rather than center-point distance only.</li>
+<li>FPS bullets are now simulated as short-lived projectiles (with wall/enemy collision) instead of instant-hit traces.</li>
+</ul>
+<p>If enemies appear to phase through corners, tune substep size and enemy radius in <code>update_enemies(...)</code>.</p>
+<h3 id="srcplatformer_gamers"><a class="header" href="#srcplatformer_gamers"><code>src/platformer_game.rs</code></a></h3>
+<p>This file owns the 3D Platformer gameplay simulation.</p>
+<p>Edit this file when you want to:</p>
+<ul>
+<li>Change platform generation, spacing, or progression.</li>
+<li>Tune jump mechanics (power, gravity, landing sensitivity).</li>
+<li>Adjust player movement speed and camera look responsiveness.</li>
+<li>Change camera distance/height for third-person view.</li>
+<li>Modify level progression and difficulty scaling.</li>
+</ul>
+<p>Important fields and concepts:</p>
+<ul>
+<li><code>player_x, player_y, player_z</code>: player position in 3D world space.</li>
+<li><code>vel_y</code>: vertical velocity used for jump and gravity.</li>
+<li><code>camera_yaw</code>: third-person camera yaw driven by mouse motion.</li>
+<li><code>on_ground</code>: whether player is currently standing on a platform.</li>
+<li><code>platforms</code>: vector of procedurally generated floating platforms.</li>
+<li><code>level</code>: current level number (increments when reaching the goal).</li>
+<li><code>score</code>: total score (increases by 100 per level completed).</li>
+<li><code>game_over</code>: set to true if player falls below -8.0 on Y axis.</li>
+</ul>
+<p>Important functions:</p>
+<ul>
+<li><code>generate_level()</code>: creates platform sequence with increasing difficulty per level.</li>
+<li><code>update()</code>: handles input, gravity, movement, jumping, collision, and goal detection.</li>
+<li><code>try_move_horizontal()</code>: applies direct FPS-style horizontal movement with collision checks.</li>
+<li><code>try_move_vertical()</code>: applies vertical motion, landing, and ceiling collision checks.</li>
+<li><code>complete_level()</code>: increments score and level, then regenerates a fresh random platform layout.</li>
+<li><code>player_collides_platform()</code>: sphere-to-box collision detection for landing and wall hits.</li>
+</ul>
+<p>Platformer tuning:</p>
+<ul>
+<li><code>GRAVITY: f32 = 18.5</code>: how fast the player falls (higher = faster).</li>
+<li><code>JUMP_POWER: f32 = 8.2</code>: initial upward velocity when jumping.</li>
+<li><code>MOVE_SPEED: f32 = 4.8</code>: horizontal movement speed.</li>
+<li><code>LOOK_SPEED: f32 = 0.0022</code>: mouse-to-camera rotation sensitivity.</li>
+<li><code>PLAYER_RADIUS: f32 = 0.28</code>: collision sphere radius.</li>
+</ul>
+<p>Goal note:</p>
+<ul>
+<li>The last platform is drawn as a checkered finish pad.</li>
+<li>Touching and standing on that goal platform triggers level completion and generates the next random level.</li>
+</ul>
+<p>Camera note:</p>
+<ul>
+<li>Platformer camera rotation now follows mouse movement directly, like the FPS controller.</li>
+<li>The player remains third-person visible while the camera orbits behind them.</li>
+</ul>
+<p>Movement note:</p>
+<ul>
+<li>Platformer movement now follows the FPS controller model: WASD moves relative to camera direction, Space jumps, and gravity handles vertical motion.</li>
+<li>The horizontal move path is direct and reactive, not physics-spring-based.</li>
+</ul>
+<p>To make jumping easier, increase <code>JUMP_POWER</code>. To make it harder, decrease it or increase <code>GRAVITY</code>.</p>
+<h3 id="srcgraphicsrs"><a class="header" href="#srcgraphicsrs"><code>src/graphics.rs</code></a></h3>
+<p>This file contains shared rendering data types.</p>
+<p>Edit this file when you want to:</p>
+<ul>
+<li>Add new vertex attributes.</li>
+<li>Change what every mesh vertex stores.</li>
+<li>Add transform behavior.</li>
+<li>Change mesh construction rules.</li>
+</ul>
+<p>Important structs:</p>
+<ul>
+<li><code>Vertex</code>: position, normal, color.</li>
+<li><code>StarVertex</code>: position, color, size.</li>
+<li><code>Mesh</code>: GPU vertex and index buffers.</li>
+<li><code>Transform</code>: position, rotation, scale.</li>
+</ul>
+<p>Be careful when editing <code>Vertex</code> or <code>StarVertex</code>. If you add fields, you must also:</p>
+<ul>
+<li>Update <code>implement_vertex!(...)</code>.</li>
+<li>Update all code that creates vertices.</li>
+<li>Update GLSL shader inputs in <code>src/shaders.rs</code>.</li>
+</ul>
+<p>Example: adding a UV coordinate would require changes in <code>graphics.rs</code>, <code>procedural.rs</code>, <code>ui.rs</code>, and <code>shaders.rs</code>.</p>
+<h3 id="srcproceduralrs"><a class="header" href="#srcproceduralrs"><code>src/procedural.rs</code></a></h3>
+<p>This file generates meshes and star data.</p>
+<p>Edit this file when you want to:</p>
+<ul>
+<li>Change the player ship shape.</li>
+<li>Change asteroid roughness or polygon density.</li>
+<li>Change bullet mesh shape.</li>
+<li>Change star spread, brightness, size, or depth.</li>
+<li>Add new generated mesh helpers.</li>
+</ul>
+<p>Important functions:</p>
+<ul>
+<li><code>procedural_ship(...)</code>: creates the player ship vertices.</li>
+<li><code>ship_indices()</code>: triangle list for the ship mesh.</li>
+<li><code>bullet_mesh()</code>: bullet vertices.</li>
+<li><code>procedural_asteroid(...)</code>: generated asteroid vertices and indices.</li>
+<li><code>generate_stars(...)</code>: starfield points.</li>
+<li><code>quad_mesh(...)</code>: simple rectangle mesh used by UI and HUD.</li>
+</ul>
+<p>Example: change ship accent color range:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let accent = [
+    rng.gen_range(0.8..1.0),
+    rng.gen_range(0.2..0.4),
+    rng.gen_range(0.2..0.4),
+];
+<span class="boring">}</span></code></pre>
+<p>Example: make asteroids rougher:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let rough = rng.gen_range(0.55..1.45);
+<span class="boring">}</span></code></pre>
+<p>Example: make stars larger:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>size: rng.gen_range(2.5..6.0) + layer as f32,
+<span class="boring">}</span></code></pre>
+<p>Important: mesh indices reference positions in the vertex array. If you add or remove ship vertices in <code>procedural_ship</code>, update <code>ship_indices()</code> so every triangle uses valid vertex numbers.</p>
+<h3 id="srcrendererrs"><a class="header" href="#srcrendererrs"><code>src/renderer.rs</code></a></h3>
+<p>This file draws everything with OpenGL through <code>glium</code>.</p>
+<p>Edit this file when you want to:</p>
+<ul>
+<li>Change camera position or field of view.</li>
+<li>Change object draw order.</li>
+<li>Change lighting direction.</li>
+<li>Change FPS indoor architecture layers (walls, ceilings, doors, windows).</li>
+<li>Change FPS sky-window lighting behavior (sky color cycle, nearest-window light source, and intensity).</li>
+<li>Change HUD visuals.</li>
+<li>Change main menu layout colors.</li>
+<li>Add rendering for new entity types.</li>
+<li>Add new shader programs.</li>
+</ul>
+<p>Important functions:</p>
+<ul>
+<li><code>Renderer::new(...)</code>: loads shaders and creates GPU meshes.</li>
+<li><code>Renderer::render(...)</code>: draws gameplay.</li>
+<li><code>Renderer::render_menu(...)</code>: draws the main menu.</li>
+<li><code>draw_stars(...)</code>: draws parallax star points.</li>
+<li><code>draw_mesh(...)</code>: draws 3D mesh objects.</li>
+<li><code>draw_hud(...)</code>: draws health/score UI.</li>
+<li><code>draw_ui_rect(...)</code>, <code>draw_menu_button(...)</code>, <code>draw_text(...)</code>: menu and UI helpers.</li>
+</ul>
+<p>FPS rendering note:</p>
+<ul>
+<li><code>render_fps(...)</code> now also draws a placeholder first-person gun viewmodel (body + barrel cubes) in camera space.</li>
+<li>Indoor dynamic light is derived from skybox color and projected from the nearest window toward the player.</li>
+<li>Viewmodel is rendered in camera space with fixed orientation so it does not spin/rotate when turning or moving.</li>
+<li>A muzzle-flash mesh is blended using <code>shot_feedback</code> for immediate visual fire feedback.</li>
+</ul>
+<p>Platformer rendering note:</p>
+<ul>
+<li><code>render_platformer(...)</code> uses third-person camera positioned behind and above the player.</li>
+<li>Camera follows player with fixed offset distance and height.</li>
+<li>Platforms, floor, and player all rendered from this third-person perspective.</li>
+<li>HUD displays current level, score, and game-over screen if player falls.</li>
+<li>Camera rotation responds to mouse X movement for orbital look control.</li>
+</ul>
+<p>Example: change gameplay camera:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let view = Matrix4::look_at_rh(
+    Point3::new(0.0, -0.15, 12.0),
+    Point3::new(0.0, -0.35, -15.0),
+    Vector3::unit_y(),
+);
+<span class="boring">}</span></code></pre>
+<p>Higher camera <code>z</code> means the camera sits farther back.</p>
+<p>Example: change field of view:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let projection = perspective(Deg(65.0), aspect, 0.1, 160.0);
+<span class="boring">}</span></code></pre>
+<p>Example: change the menu title:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>self.draw_text(
+    display,
+    frame,
+    ui,
+    "MY GAME",
+    -3.85,
+    2.25,
+    0.22,
+    [0.45, 0.95, 1.0],
+);
+<span class="boring">}</span></code></pre>
+<p>If you add a new gameplay entity in <code>game.rs</code>, draw it in <code>Renderer::render(...)</code> after choosing or creating a mesh for it.</p>
+<h3 id="srcuirs"><a class="header" href="#srcuirs"><code>src/ui.rs</code></a></h3>
+<p>This file contains menu geometry and bitmap text helpers.</p>
+<p>Edit this file when you want to:</p>
+<ul>
+<li>Move menu buttons.</li>
+<li>Change button hitboxes.</li>
+<li>Change UI coordinate conversion.</li>
+<li>Change bitmap text generation.</li>
+<li>Add supported characters to the built-in text renderer.</li>
+</ul>
+<p>Important items:</p>
+<ul>
+<li><code>MenuButton</code>: known menu button IDs (SpaceShooter, Snake, Fps, Platformer, Start, Quit).</li>
+<li><code>Rect</code>: UI rectangle and hit testing.</li>
+<li><code>ui_projection(...)</code>: orthographic UI camera.</li>
+<li><code>mouse_to_ui(...)</code>: converts mouse normalized-device coordinates into UI coordinates.</li>
+<li><code>menu_button(...)</code>: button rectangles.</li>
+<li><code>text_width(...)</code>: simple text measurement.</li>
+<li><code>text_mesh(...)</code>: converts text into quad meshes.</li>
+<li><code>glyph(...)</code>: 5x7 bitmap glyph patterns.</li>
+</ul>
+<p>Example: move the Start button upward:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>MenuButton::Start =&gt; Rect::new(-1.95, -0.25, 3.9, 0.72),
+<span class="boring">}</span></code></pre>
+<p>Example: add a new menu button:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub enum MenuButton {
+    Start,
+    Settings,
+    Quit,
+}
+<span class="boring">}</span></code></pre>
+<p>Then update <code>menu_button(...)</code>, <code>renderer.rs</code>, and <code>main.rs</code> click handling.</p>
+<p>Example: add punctuation support:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>'!' =&gt; [0b00100, 0b00100, 0b00100, 0b00100, 0b00100, 0b00000, 0b00100],
+<span class="boring">}</span></code></pre>
+<h3 id="srcshadersrs"><a class="header" href="#srcshadersrs"><code>src/shaders.rs</code></a></h3>
+<p>This file contains GLSL shader source strings.</p>
+<p>Edit this file when you want to:</p>
+<ul>
+<li>Change lighting.</li>
+<li>Change star rendering.</li>
+<li>Add new shader inputs or uniforms.</li>
+<li>Change fragment colors or alpha behavior.</li>
+</ul>
+<p>Current shaders:</p>
+<ul>
+<li><code>SOLID_VERTEX_SHADER</code>: transforms mesh vertices and normals.</li>
+<li><code>SOLID_FRAGMENT_SHADER</code>: lights colored mesh surfaces.</li>
+<li><code>STAR_VERTEX_SHADER</code>: animates star positions and point sizes.</li>
+<li><code>STAR_FRAGMENT_SHADER</code>: gives stars soft circular alpha.</li>
+</ul>
+<p>Example: make mesh lighting brighter:</p>
+<pre><code class="language-glsl">vec3 color = v_color * (0.38 + diffuse * 1.1) + rim;
+</code></pre>
+<p>Example: make stars sharper:</p>
+<pre><code class="language-glsl">float alpha = smoothstep(0.18, 0.01, dist);
+</code></pre>
+<p>If you add a shader uniform, also add it in the corresponding <code>uniform! { ... }</code> block in <code>renderer.rs</code>.</p>
+<h2 id="common-editing-recipes"><a class="header" href="#common-editing-recipes">Common Editing Recipes</a></h2>
+<h3 id="make-the-player-faster-or-smoother"><a class="header" href="#make-the-player-faster-or-smoother">Make the player faster or smoother</a></h3>
+<p>Open <code>src/game.rs</code> and find:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>self.player.position +=
+    (self.player.target - self.player.position) * (1.0 - (-14.0 * dt).exp());
+<span class="boring">}</span></code></pre>
+<p>Increase <code>14.0</code> for snappier movement. Decrease it for heavier, smoother movement.</p>
+<h3 id="make-the-playable-area-wider"><a class="header" href="#make-the-playable-area-wider">Make the playable area wider</a></h3>
+<p>Open <code>src/config.rs</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub const WORLD_HALF_WIDTH: f32 = 10.5;
+<span class="boring">}</span></code></pre>
+<p>Then run <code>cargo run</code> and test if the ship and asteroids still feel balanced.</p>
+<h3 id="add-a-new-enemy-type"><a class="header" href="#add-a-new-enemy-type">Add a new enemy type</a></h3>
+<p>Recommended steps:</p>
+<ol>
+<li>Add a new struct or enum field in <code>src/game.rs</code>.</li>
+<li>Spawn it inside <code>Game::update</code>.</li>
+<li>Update its movement in <code>Game::update</code>.</li>
+<li>Add collision handling.</li>
+<li>Add a procedural mesh in <code>src/procedural.rs</code>.</li>
+<li>Create the GPU mesh in <code>Renderer::new</code>.</li>
+<li>Draw it in <code>Renderer::render</code>.</li>
+</ol>
+<p>Keep the first version simple: position, velocity, radius, mesh ID.</p>
+<h3 id="add-a-pause-menu"><a class="header" href="#add-a-pause-menu">Add a pause menu</a></h3>
+<p>Recommended steps:</p>
+<ol>
+<li>Add <code>Paused</code> to <code>AppState</code> in <code>src/app.rs</code>.</li>
+<li>In <code>src/main.rs</code>, map <code>P</code> or <code>Escape</code> to enter/leave pause.</li>
+<li>In <code>WindowEvent::RedrawRequested</code>, do not call <code>game.update(...)</code> while paused.</li>
+<li>Add <code>Renderer::render_pause(...)</code> in <code>src/renderer.rs</code>, or reuse <code>render_menu(...)</code> style helpers.</li>
+</ol>
+<h3 id="add-a-settings-menu-button"><a class="header" href="#add-a-settings-menu-button">Add a settings menu button</a></h3>
+<p>Recommended steps:</p>
+<ol>
+<li>Add <code>Settings</code> to <code>MenuButton</code> in <code>src/ui.rs</code>.</li>
+<li>Add a rectangle for it in <code>menu_button(...)</code>.</li>
+<li>Draw it in <code>Renderer::render_menu(...)</code>.</li>
+<li>Add click handling in <code>src/main.rs</code>.</li>
+<li>Add <code>Settings</code> to <code>AppState</code> if it needs its own screen.</li>
+</ol>
+<h3 id="change-menu-text"><a class="header" href="#change-menu-text">Change menu text</a></h3>
+<p>Open <code>src/renderer.rs</code> and edit the text passed to <code>draw_text(...)</code>.</p>
+<p>The current bitmap font supports uppercase letters and digits. Lowercase text is converted to uppercase. Unknown punctuation becomes a question mark style glyph unless you add it to <code>glyph(...)</code> in <code>src/ui.rs</code>.</p>
+<h3 id="change-the-starfield"><a class="header" href="#change-the-starfield">Change the starfield</a></h3>
+<p>Open <code>src/procedural.rs</code>:</p>
+<ul>
+<li>Star count is controlled in <code>src/config.rs</code>.</li>
+<li>Star spread and depth are in <code>generate_stars(...)</code>.</li>
+<li>Star animation speed is in <code>draw_stars(...)</code> inside <code>src/renderer.rs</code>.</li>
+</ul>
+<p>Open <code>src/shaders.rs</code> if you want to change point shape or alpha.</p>
+<h2 id="adding-new-files"><a class="header" href="#adding-new-files">Adding New Files</a></h2>
+<p>To add a new module:</p>
+<ol>
+<li>Create <code>src/audio.rs</code>, <code>src/settings.rs</code>, or another focused file.</li>
+<li>Add this to the top of <code>src/main.rs</code>:</li>
+</ol>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>mod audio;
+<span class="boring">}</span></code></pre>
+<ol start="3">
+<li>Import items where needed:</li>
+</ol>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use audio::AudioSystem;
+<span class="boring">}</span></code></pre>
+<ol start="4">
+<li>Mark shared items as <code>pub</code> inside the new file.</li>
+</ol>
+<p>Rule of thumb: if another file needs to use a type or function, it must be <code>pub</code>.</p>
+<h2 id="rust-visibility-cheat-sheet"><a class="header" href="#rust-visibility-cheat-sheet">Rust Visibility Cheat Sheet</a></h2>
+<ul>
+<li><code>fn helper()</code> is private to the current module.</li>
+<li><code>pub fn helper()</code> can be used by other modules.</li>
+<li><code>struct Thing { field: i32 }</code> has private fields.</li>
+<li><code>pub struct Thing { pub field: i32 }</code> can be constructed and read from other modules.</li>
+<li><code>pub enum Mode { A, B }</code> can be matched from other modules.</li>
+</ul>
+<p>Keep most helper functions private. Make only the actual module API public.</p>
+<h2 id="compile-and-debug-workflow"><a class="header" href="#compile-and-debug-workflow">Compile And Debug Workflow</a></h2>
+<p>Use this loop while editing:</p>
+<pre><code class="language-powershell">cargo fmt
+cargo check
+cargo run
+</code></pre>
+<p>Use <code>cargo check</code> often because it is faster than a full build.</p>
+<p>For runtime panics with more detail:</p>
+<pre><code class="language-powershell">$env:RUST_BACKTRACE=1
+cargo run
+</code></pre>
+<p>To clear the backtrace setting in the same terminal:</p>
+<pre><code class="language-powershell">Remove-Item Env:RUST_BACKTRACE
+</code></pre>
+<h2 id="common-compile-errors"><a class="header" href="#common-compile-errors">Common Compile Errors</a></h2>
+<h3 id="cannot-find-functiontype-in-this-scope"><a class="header" href="#cannot-find-functiontype-in-this-scope"><code>cannot find function/type in this scope</code></a></h3>
+<p>You probably moved or added something but did not import it.</p>
+<p>Fix by adding a <code>use</code> line:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use crate::ui::menu_button;
+<span class="boring">}</span></code></pre>
+<p>Inside <code>main.rs</code>, modules are imported without <code>crate::</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use ui::menu_button;
+<span class="boring">}</span></code></pre>
+<h3 id="field-is-private"><a class="header" href="#field-is-private"><code>field is private</code></a></h3>
+<p>The struct field is not marked <code>pub</code>.</p>
+<p>Example fix:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct Player {
+    pub health: i32,
+}
+<span class="boring">}</span></code></pre>
+<p>Only make fields public when another module truly needs them.</p>
+<h3 id="uniformtypemismatch"><a class="header" href="#uniformtypemismatch"><code>UniformTypeMismatch</code></a></h3>
+<p>The Rust uniform type does not match the GLSL shader type.</p>
+<p>Examples:</p>
+<ul>
+<li>GLSL <code>float</code> should receive Rust <code>f32</code>.</li>
+<li>GLSL <code>vec3</code> should receive <code>[f32; 3]</code>.</li>
+<li>GLSL <code>mat4</code> should receive <code>[[f32; 4]; 4]</code>.</li>
+</ul>
+<p>Good:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>layer_speed: 3.5f32,
+light_dir: [0.35f32, 0.8, 0.5],
+vp: mat4(vp),
+<span class="boring">}</span></code></pre>
+<h3 id="blank-or-invisible-mesh"><a class="header" href="#blank-or-invisible-mesh">Blank or invisible mesh</a></h3>
+<p>Check these points:</p>
+<ul>
+<li>Are indices valid for the vertex array?</li>
+<li>Is the object behind the camera?</li>
+<li>Is the object too small or too large?</li>
+<li>Is the color too dark?</li>
+<li>Is depth testing hiding it?</li>
+<li>Is the shader input name the same as the Rust vertex field?</li>
+</ul>
+<h3 id="text-does-not-show-a-character"><a class="header" href="#text-does-not-show-a-character">Text does not show a character</a></h3>
+<p>Add the character to <code>glyph(...)</code> in <code>src/ui.rs</code>, or use letters/digits that already exist.</p>
+<h2 id="style-guidelines-for-this-project"><a class="header" href="#style-guidelines-for-this-project">Style Guidelines For This Project</a></h2>
+<ul>
+<li>Keep simulation logic in <code>game.rs</code>.</li>
+<li>Keep OpenGL drawing logic in <code>renderer.rs</code>.</li>
+<li>Keep generated geometry in <code>procedural.rs</code>.</li>
+<li>Keep hard-coded balancing values in <code>config.rs</code> when they are shared or likely to be tweaked.</li>
+<li>Keep shader code in <code>shaders.rs</code>.</li>
+<li>Keep UI hitboxes and text mesh logic in <code>ui.rs</code>.</li>
+<li>Avoid putting gameplay decisions in shaders.</li>
+<li>Avoid putting rendering buffer creation in <code>game.rs</code>.</li>
+<li>Keep <code>main.rs</code> focused on window events and app-state transitions.</li>
+</ul>
+<p>This split keeps manual edits small and easier to test.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="manuale-di-codifica-manuale"><a class="header" href="#manuale-di-codifica-manuale">Manuale Di Codifica Manuale</a></h1>
+<p>Questa guida spiega come modificare a mano i file di Vibe Engine senza perdersi nella struttura del progetto. Il codice è piccolo, ma è diviso in moduli per separare gameplay, rendering, UI, shader e generazione procedurale.</p>
+<h2 id="regole-di-base"><a class="header" href="#regole-di-base">Regole Di Base</a></h2>
+<ul>
+<li>Esegui <code>cargo fmt</code> dopo aver modificato file Rust.</li>
+<li>Esegui <code>cargo check</code> per controllare rapidamente se il codice compila.</li>
+<li>Esegui <code>cargo run</code> quando vuoi provare davvero la finestra e il gioco.</li>
+<li>Modifica un sistema alla volta: gameplay in <code>game.rs</code>, grafica in <code>renderer.rs</code>, mesh generate in <code>procedural.rs</code>, menu in <code>ui.rs</code>.</li>
+<li>Se aggiungi un nuovo file <code>.rs</code> in <code>src</code>, dichiaralo in alto in <code>src/main.rs</code> con <code>mod nome_file;</code>.</li>
+</ul>
+<h2 id="mappa-dei-file"><a class="header" href="#mappa-dei-file">Mappa Dei File</a></h2>
+<h3 id="srcmainrs-1"><a class="header" href="#srcmainrs-1"><code>src/main.rs</code></a></h3>
+<p>Questo file avvia l’applicazione e contiene il ciclo eventi principale.</p>
+<p>Modifica questo file quando vuoi:</p>
+<ul>
+<li>Aggiungere una nuova schermata o modalità, per esempio <code>Pause</code>, <code>Settings</code> o <code>GameOverMenu</code>.</li>
+<li>Cambiare i controlli da tastiera o mouse.</li>
+<li>Cambiare il comportamento del cursore quando entri o esci dal gameplay.</li>
+<li>Cambiare titolo finestra o risoluzione iniziale.</li>
+<li>Decidere quale funzione di rendering viene chiamata per ogni stato dell’app.</li>
+</ul>
+<p>Sezioni importanti:</p>
+<ul>
+<li><code>mod app; mod config; ...</code>: dichiarazioni dei moduli.</li>
+<li><code>enter_game(...)</code>: passaggio dal menu al gameplay.</li>
+<li><code>enter_menu(...)</code>: ritorno dal gameplay al menu.</li>
+<li><code>WindowEvent::KeyboardInput</code>: gestione tasti.</li>
+<li><code>WindowEvent::MouseInput</code>: gestione click mouse.</li>
+<li><code>WindowEvent::RedrawRequested</code>: ciclo di update e disegno.</li>
+</ul>
+<p>Esempio: cambiare titolo finestra:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new()
+    .with_title("Il Mio Gioco Spaziale")
+    .with_inner_size(1280, 720)
+    .build(&amp;event_loop);
+<span class="boring">}</span></code></pre>
+<p>Esempio: aggiungere un nuovo tasto:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>PhysicalKey::Code(KeyCode::KeyP) if pressed =&gt; {
+    // Qui puoi gestire la pausa dopo aver aggiunto lo stato Paused.
+}
+<span class="boring">}</span></code></pre>
+<h3 id="srcapprs-1"><a class="header" href="#srcapprs-1"><code>src/app.rs</code></a></h3>
+<p>Questo file contiene lo stato generale dell’applicazione.</p>
+<p>Modifica questo file quando vuoi:</p>
+<ul>
+<li>Aggiungere una schermata a <code>AppState</code>.</li>
+<li>Aggiungere nuovi flag di input a <code>Input</code>.</li>
+<li>Cambiare la posizione iniziale del mouse o lo stato input predefinito.</li>
+</ul>
+<p>Stati attuali:</p>
+<ul>
+<li><code>MainMenu</code></li>
+<li><code>Playing</code></li>
+</ul>
+<p>Esempio: aggiungere uno stato pausa:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub enum AppState {
+    MainMenu,
+    Playing,
+    Paused,
+}
+<span class="boring">}</span></code></pre>
+<p>Dopo aver aggiunto uno stato, aggiorna <code>main.rs</code> per dire al ciclo eventi come renderizzarlo e come entrarci/uscirci.</p>
+<h3 id="srcconfigrs-1"><a class="header" href="#srcconfigrs-1"><code>src/config.rs</code></a></h3>
+<p>Questo file contiene costanti condivise di gameplay e rendering.</p>
+<p>Modifica questo file per cambiamenti rapidi di bilanciamento:</p>
+<ul>
+<li><code>WORLD_HALF_WIDTH</code>: metà larghezza dell’area giocabile.</li>
+<li><code>WORLD_HALF_HEIGHT</code>: metà altezza dell’area giocabile.</li>
+<li><code>PLAYER_Z</code>: profondità del giocatore.</li>
+<li><code>BULLET_SPEED</code>: velocità dei proiettili.</li>
+<li><code>ASTEROID_SPEED</code>: velocità base degli asteroidi.</li>
+<li><code>STAR_LAYERS</code>: numero di livelli parallasse delle stelle.</li>
+<li><code>STAR_COUNT_PER_LAYER</code>: numero di stelle per livello.</li>
+</ul>
+<p>Esempio: rendere il gioco più veloce:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub const BULLET_SPEED: f32 = 34.0;
+pub const ASTEROID_SPEED: f32 = 11.0;
+<span class="boring">}</span></code></pre>
+<p>Cambiare le costanti è di solito il primo intervento più sicuro, perché raramente richiede modifiche in altri file.</p>
+<h3 id="srcgamers-1"><a class="header" href="#srcgamers-1"><code>src/game.rs</code></a></h3>
+<p>Questo file contiene la simulazione del gioco.</p>
+<p>Modifica questo file quando vuoi:</p>
+<ul>
+<li>Cambiare la vita del giocatore.</li>
+<li>Cambiare il cooldown dei colpi.</li>
+<li>Cambiare lo spawn dei nemici.</li>
+<li>Aggiungere nuovi comportamenti nemici.</li>
+<li>Cambiare le collisioni.</li>
+<li>Cambiare il punteggio.</li>
+<li>Aggiungere powerup o oggetti raccoglibili.</li>
+</ul>
+<p>Struct importanti:</p>
+<ul>
+<li><code>Game</code>: stato completo della simulazione.</li>
+<li><code>Player</code>: posizione, bersaglio, cooldown e vita della nave.</li>
+<li><code>Bullet</code>: posizione del proiettile.</li>
+<li><code>Asteroid</code>: posizione, velocità, raggio, rotazione e mesh scelta.</li>
+</ul>
+<p>Funzioni importanti:</p>
+<ul>
+<li><code>Game::new()</code>: stato iniziale del gioco.</li>
+<li><code>Game::update(...)</code>: simulazione eseguita ogni frame.</li>
+</ul>
+<p>Esempio: cambiare vita iniziale:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>health: 8,
+<span class="boring">}</span></code></pre>
+<p>Esempio: cambiare cadenza di fuoco:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>self.player.cooldown = 0.08;
+<span class="boring">}</span></code></pre>
+<p>Un cooldown più basso significa sparare più rapidamente.</p>
+<p>Esempio: far spawnare meno asteroidi:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>self.spawn_timer = self.rng.gen_range(0.45..1.05) / difficulty.min(3.5);
+<span class="boring">}</span></code></pre>
+<p>Esempio: cambiare punti per asteroide:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>self.score += 25;
+<span class="boring">}</span></code></pre>
+<p>Quando modifichi <code>Game::update</code>, mantieni idealmente questo ordine:</p>
+<ol>
+<li>Gestire restart dopo game over.</li>
+<li>Aggiornare bersaglio e movimento del giocatore.</li>
+<li>Generare proiettili.</li>
+<li>Muovere proiettili.</li>
+<li>Generare asteroidi.</li>
+<li>Muovere asteroidi.</li>
+<li>Risolvere collisioni proiettile-asteroide.</li>
+<li>Risolvere collisioni giocatore-asteroide.</li>
+<li>Rimuovere entità distrutte o fuori schermo.</li>
+</ol>
+<p>Questo ordine rende la simulazione più prevedibile.</p>
+<h3 id="srcgraphicsrs-1"><a class="header" href="#srcgraphicsrs-1"><code>src/graphics.rs</code></a></h3>
+<p>Questo file contiene tipi condivisi per il rendering.</p>
+<p>Modifica questo file quando vuoi:</p>
+<ul>
+<li>Aggiungere attributi ai vertici.</li>
+<li>Cambiare cosa contiene ogni vertice.</li>
+<li>Aggiungere comportamento alle trasformazioni.</li>
+<li>Cambiare la creazione delle mesh GPU.</li>
+</ul>
+<p>Struct importanti:</p>
+<ul>
+<li><code>Vertex</code>: posizione, normale, colore.</li>
+<li><code>StarVertex</code>: posizione, colore, dimensione.</li>
+<li><code>Mesh</code>: vertex buffer e index buffer sulla GPU.</li>
+<li><code>Transform</code>: posizione, rotazione, scala.</li>
+</ul>
+<p>Fai attenzione quando modifichi <code>Vertex</code> o <code>StarVertex</code>. Se aggiungi campi, devi anche:</p>
+<ul>
+<li>Aggiornare <code>implement_vertex!(...)</code>.</li>
+<li>Aggiornare tutto il codice che crea vertici.</li>
+<li>Aggiornare gli input GLSL in <code>src/shaders.rs</code>.</li>
+</ul>
+<p>Esempio: aggiungere coordinate UV richiederebbe modifiche in <code>graphics.rs</code>, <code>procedural.rs</code>, <code>ui.rs</code> e <code>shaders.rs</code>.</p>
+<h3 id="srcproceduralrs-1"><a class="header" href="#srcproceduralrs-1"><code>src/procedural.rs</code></a></h3>
+<p>Questo file genera mesh e dati procedurali.</p>
+<p>Modifica questo file quando vuoi:</p>
+<ul>
+<li>Cambiare forma della nave del giocatore.</li>
+<li>Cambiare ruvidità o densità poligonale degli asteroidi.</li>
+<li>Cambiare forma dei proiettili.</li>
+<li>Cambiare distribuzione, luminosità, dimensione o profondità delle stelle.</li>
+<li>Aggiungere nuove funzioni di generazione mesh.</li>
+</ul>
+<p>Funzioni importanti:</p>
+<ul>
+<li><code>procedural_ship(...)</code>: crea i vertici della nave.</li>
+<li><code>ship_indices()</code>: lista triangoli della nave.</li>
+<li><code>bullet_mesh()</code>: vertici dei proiettili.</li>
+<li><code>procedural_asteroid(...)</code>: vertici e indici degli asteroidi.</li>
+<li><code>generate_stars(...)</code>: punti della starfield.</li>
+<li><code>quad_mesh(...)</code>: rettangolo usato da UI e HUD.</li>
+</ul>
+<p>Esempio: cambiare colore accento della nave:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let accent = [
+    rng.gen_range(0.8..1.0),
+    rng.gen_range(0.2..0.4),
+    rng.gen_range(0.2..0.4),
+];
+<span class="boring">}</span></code></pre>
+<p>Esempio: rendere gli asteroidi più irregolari:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let rough = rng.gen_range(0.55..1.45);
+<span class="boring">}</span></code></pre>
+<p>Esempio: rendere le stelle più grandi:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>size: rng.gen_range(2.5..6.0) + layer as f32,
+<span class="boring">}</span></code></pre>
+<p>Importante: gli indici delle mesh puntano ai vertici nell’array. Se aggiungi o rimuovi vertici in <code>procedural_ship</code>, aggiorna <code>ship_indices()</code> in modo che ogni triangolo usi numeri validi.</p>
+<h3 id="srcrendererrs-1"><a class="header" href="#srcrendererrs-1"><code>src/renderer.rs</code></a></h3>
+<p>Questo file disegna tutto con OpenGL tramite <code>glium</code>.</p>
+<p>Modifica questo file quando vuoi:</p>
+<ul>
+<li>Cambiare posizione della camera o campo visivo.</li>
+<li>Cambiare ordine di disegno.</li>
+<li>Cambiare direzione della luce.</li>
+<li>Cambiare HUD.</li>
+<li>Cambiare colori o layout del menu principale.</li>
+<li>Aggiungere rendering per nuovi tipi di entità.</li>
+<li>Aggiungere nuovi programmi shader.</li>
+</ul>
+<p>Funzioni importanti:</p>
+<ul>
+<li><code>Renderer::new(...)</code>: carica shader e crea mesh GPU.</li>
+<li><code>Renderer::render(...)</code>: disegna il gameplay.</li>
+<li><code>Renderer::render_menu(...)</code>: disegna il menu principale.</li>
+<li><code>draw_stars(...)</code>: disegna le stelle parallasse.</li>
+<li><code>draw_mesh(...)</code>: disegna mesh 3D.</li>
+<li><code>draw_hud(...)</code>: disegna vita e punteggio.</li>
+<li><code>draw_ui_rect(...)</code>, <code>draw_menu_button(...)</code>, <code>draw_text(...)</code>: helper per UI e menu.</li>
+</ul>
+<p>Esempio: cambiare camera gameplay:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let view = Matrix4::look_at_rh(
+    Point3::new(0.0, -0.15, 12.0),
+    Point3::new(0.0, -0.35, -15.0),
+    Vector3::unit_y(),
+);
+<span class="boring">}</span></code></pre>
+<p>Un valore <code>z</code> più alto nella camera la sposta più indietro.</p>
+<p>Esempio: cambiare campo visivo:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let projection = perspective(Deg(65.0), aspect, 0.1, 160.0);
+<span class="boring">}</span></code></pre>
+<p>Esempio: cambiare titolo menu:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>self.draw_text_centered(
+    display,
+    frame,
+    ui,
+    "IL MIO GIOCO",
+    0.0,
+    2.0,
+    0.115,
+    7.7,
+    [0.45, 0.95, 1.0],
+);
+<span class="boring">}</span></code></pre>
+<p>Se aggiungi una nuova entità in <code>game.rs</code>, disegnala in <code>Renderer::render(...)</code> dopo aver creato o scelto una mesh.</p>
+<h3 id="srcuirs-1"><a class="header" href="#srcuirs-1"><code>src/ui.rs</code></a></h3>
+<p>Questo file contiene geometria menu e testo bitmap.</p>
+<p>Modifica questo file quando vuoi:</p>
+<ul>
+<li>Spostare pulsanti del menu.</li>
+<li>Cambiare hitbox dei pulsanti.</li>
+<li>Cambiare conversione coordinate mouse/UI.</li>
+<li>Cambiare generazione del testo bitmap.</li>
+<li>Aggiungere caratteri supportati dal font integrato.</li>
+</ul>
+<p>Elementi importanti:</p>
+<ul>
+<li><code>MenuButton</code>: ID dei pulsanti menu.</li>
+<li><code>Rect</code>: rettangolo UI e hit testing.</li>
+<li><code>ui_projection(...)</code>: camera ortografica per UI.</li>
+<li><code>mouse_to_ui(...)</code>: converte coordinate mouse normalizzate in coordinate UI.</li>
+<li><code>menu_button(...)</code>: rettangoli dei pulsanti.</li>
+<li><code>text_width(...)</code>: misura larghezza testo.</li>
+<li><code>text_height(...)</code>: misura altezza testo.</li>
+<li><code>text_mesh(...)</code>: converte testo in mesh di quad.</li>
+<li><code>glyph(...)</code>: pattern bitmap 5x7.</li>
+</ul>
+<p>Esempio: spostare il pulsante Start verso l’alto:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>MenuButton::Start =&gt; Rect::new(-1.7, -0.25, 3.4, 0.62),
+<span class="boring">}</span></code></pre>
+<p>Esempio: aggiungere un nuovo pulsante menu:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub enum MenuButton {
+    Start,
+    Settings,
+    Quit,
+}
+<span class="boring">}</span></code></pre>
+<p>Poi aggiorna <code>menu_button(...)</code>, <code>renderer.rs</code> e la gestione click in <code>main.rs</code>.</p>
+<p>Esempio: aggiungere supporto per <code>!</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>'!' =&gt; [0b00100, 0b00100, 0b00100, 0b00100, 0b00100, 0b00000, 0b00100],
+<span class="boring">}</span></code></pre>
+<h3 id="srcshadersrs-1"><a class="header" href="#srcshadersrs-1"><code>src/shaders.rs</code></a></h3>
+<p>Questo file contiene il codice sorgente GLSL degli shader.</p>
+<p>Modifica questo file quando vuoi:</p>
+<ul>
+<li>Cambiare illuminazione.</li>
+<li>Cambiare rendering delle stelle.</li>
+<li>Aggiungere nuovi input o uniform agli shader.</li>
+<li>Cambiare colori o alpha nel fragment shader.</li>
+</ul>
+<p>Shader attuali:</p>
+<ul>
+<li><code>SOLID_VERTEX_SHADER</code>: trasforma vertici e normali delle mesh.</li>
+<li><code>SOLID_FRAGMENT_SHADER</code>: illumina superfici colorate.</li>
+<li><code>STAR_VERTEX_SHADER</code>: anima posizione e dimensione delle stelle.</li>
+<li><code>STAR_FRAGMENT_SHADER</code>: rende le stelle morbide e circolari.</li>
+</ul>
+<p>Esempio: rendere più luminose le mesh:</p>
+<pre><code class="language-glsl">vec3 color = v_color * (0.38 + diffuse * 1.1) + rim;
+</code></pre>
+<p>Esempio: rendere le stelle più nette:</p>
+<pre><code class="language-glsl">float alpha = smoothstep(0.18, 0.01, dist);
+</code></pre>
+<p>Se aggiungi una uniform nello shader, aggiungila anche nel blocco <code>uniform! { ... }</code> corrispondente in <code>renderer.rs</code>.</p>
+<h2 id="ricette-comuni"><a class="header" href="#ricette-comuni">Ricette Comuni</a></h2>
+<h3 id="rendere-il-giocatore-più-reattivo"><a class="header" href="#rendere-il-giocatore-più-reattivo">Rendere Il Giocatore Più Reattivo</a></h3>
+<p>Apri <code>src/game.rs</code> e trova:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>self.player.position +=
+    (self.player.target - self.player.position) * (1.0 - (-14.0 * dt).exp());
+<span class="boring">}</span></code></pre>
+<p>Aumenta <code>14.0</code> per movimento più rapido. Diminuiscilo per movimento più morbido e pesante.</p>
+<h3 id="allargare-larea-giocabile"><a class="header" href="#allargare-larea-giocabile">Allargare L’Area Giocabile</a></h3>
+<p>Apri <code>src/config.rs</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub const WORLD_HALF_WIDTH: f32 = 10.5;
+<span class="boring">}</span></code></pre>
+<p>Poi esegui <code>cargo run</code> e verifica che nave e asteroidi restino bilanciati.</p>
+<h3 id="aggiungere-un-nuovo-nemico"><a class="header" href="#aggiungere-un-nuovo-nemico">Aggiungere Un Nuovo Nemico</a></h3>
+<p>Passi consigliati:</p>
+<ol>
+<li>Aggiungi una struct o un campo enum in <code>src/game.rs</code>.</li>
+<li>Generala dentro <code>Game::update</code>.</li>
+<li>Aggiorna il movimento dentro <code>Game::update</code>.</li>
+<li>Aggiungi collisioni.</li>
+<li>Aggiungi una mesh procedurale in <code>src/procedural.rs</code>.</li>
+<li>Crea la mesh GPU in <code>Renderer::new</code>.</li>
+<li>Disegnala in <code>Renderer::render</code>.</li>
+</ol>
+<p>Per la prima versione tienila semplice: posizione, velocità, raggio, mesh ID.</p>
+<h3 id="aggiungere-un-menu-pausa"><a class="header" href="#aggiungere-un-menu-pausa">Aggiungere Un Menu Pausa</a></h3>
+<p>Passi consigliati:</p>
+<ol>
+<li>Aggiungi <code>Paused</code> a <code>AppState</code> in <code>src/app.rs</code>.</li>
+<li>In <code>src/main.rs</code>, usa <code>P</code> o <code>Escape</code> per entrare/uscire dalla pausa.</li>
+<li>In <code>WindowEvent::RedrawRequested</code>, non chiamare <code>game.update(...)</code> durante la pausa.</li>
+<li>Aggiungi <code>Renderer::render_pause(...)</code> in <code>src/renderer.rs</code>, oppure riusa gli helper del menu.</li>
+</ol>
+<h3 id="aggiungere-un-pulsante-settings"><a class="header" href="#aggiungere-un-pulsante-settings">Aggiungere Un Pulsante Settings</a></h3>
+<p>Passi consigliati:</p>
+<ol>
+<li>Aggiungi <code>Settings</code> a <code>MenuButton</code> in <code>src/ui.rs</code>.</li>
+<li>Aggiungi un rettangolo per <code>Settings</code> in <code>menu_button(...)</code>.</li>
+<li>Disegnalo in <code>Renderer::render_menu(...)</code>.</li>
+<li>Gestisci il click in <code>src/main.rs</code>.</li>
+<li>Aggiungi <code>Settings</code> a <code>AppState</code> se serve una schermata separata.</li>
+</ol>
+<h3 id="cambiare-testi-del-menu"><a class="header" href="#cambiare-testi-del-menu">Cambiare Testi Del Menu</a></h3>
+<p>Apri <code>src/renderer.rs</code> e modifica il testo passato a <code>draw_text_centered(...)</code> o <code>draw_text_in_rect(...)</code>.</p>
+<p>Il font bitmap attuale supporta lettere maiuscole e numeri. Le minuscole vengono convertite in maiuscole. La punteggiatura non supportata diventa un glifo tipo punto interrogativo, a meno che tu non la aggiunga in <code>glyph(...)</code> dentro <code>src/ui.rs</code>.</p>
+<h3 id="cambiare-la-starfield"><a class="header" href="#cambiare-la-starfield">Cambiare La Starfield</a></h3>
+<p>Apri <code>src/procedural.rs</code>:</p>
+<ul>
+<li>Il numero di stelle è in <code>src/config.rs</code>.</li>
+<li>Distribuzione e profondità sono in <code>generate_stars(...)</code>.</li>
+<li>Velocità animazione stelle è in <code>draw_stars(...)</code> dentro <code>src/renderer.rs</code>.</li>
+</ul>
+<p>Apri <code>src/shaders.rs</code> se vuoi cambiare forma o alpha dei punti stella.</p>
+<h2 id="aggiungere-nuovi-file"><a class="header" href="#aggiungere-nuovi-file">Aggiungere Nuovi File</a></h2>
+<p>Per aggiungere un nuovo modulo:</p>
+<ol>
+<li>Crea <code>src/audio.rs</code>, <code>src/settings.rs</code> o un altro file con uno scopo preciso.</li>
+<li>Aggiungi in alto a <code>src/main.rs</code>:</li>
+</ol>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>mod audio;
+<span class="boring">}</span></code></pre>
+<ol start="3">
+<li>Importa gli elementi dove servono:</li>
+</ol>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use audio::AudioSystem;
+<span class="boring">}</span></code></pre>
+<ol start="4">
+<li>Marca come <code>pub</code> gli elementi che devono essere usati da altri file.</li>
+</ol>
+<p>Regola pratica: se un altro file deve usare un tipo o una funzione, quell’elemento deve essere <code>pub</code>.</p>
+<h2 id="visibilità-rust-in-breve"><a class="header" href="#visibilità-rust-in-breve">Visibilità Rust In Breve</a></h2>
+<ul>
+<li><code>fn helper()</code> è privata al modulo corrente.</li>
+<li><code>pub fn helper()</code> può essere usata da altri moduli.</li>
+<li><code>struct Thing { field: i32 }</code> ha campi privati.</li>
+<li><code>pub struct Thing { pub field: i32 }</code> può essere costruita e letta da altri moduli.</li>
+<li><code>pub enum Mode { A, B }</code> può essere usata in <code>match</code> da altri moduli.</li>
+</ul>
+<p>Tieni privati gli helper interni. Rendi pubblica solo la vera API del modulo.</p>
+<h2 id="workflow-di-compilazione-e-debug"><a class="header" href="#workflow-di-compilazione-e-debug">Workflow Di Compilazione E Debug</a></h2>
+<p>Usa questo ciclo mentre modifichi:</p>
+<pre><code class="language-powershell">cargo fmt
+cargo check
+cargo run
+</code></pre>
+<p>Usa spesso <code>cargo check</code>, perché è più veloce di una build completa.</p>
+<p>Per dettagli extra in caso di panic:</p>
+<pre><code class="language-powershell">$env:RUST_BACKTRACE=1
+cargo run
+</code></pre>
+<p>Per rimuovere il backtrace nello stesso terminale:</p>
+<pre><code class="language-powershell">Remove-Item Env:RUST_BACKTRACE
+</code></pre>
+<h2 id="errori-comuni"><a class="header" href="#errori-comuni">Errori Comuni</a></h2>
+<h3 id="cannot-find-functiontype-in-this-scope-1"><a class="header" href="#cannot-find-functiontype-in-this-scope-1"><code>cannot find function/type in this scope</code></a></h3>
+<p>Probabilmente hai aggiunto o spostato qualcosa ma non lo hai importato.</p>
+<p>Correzione tipica:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use crate::ui::menu_button;
+<span class="boring">}</span></code></pre>
+<p>Dentro <code>main.rs</code>, i moduli si importano senza <code>crate::</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use ui::menu_button;
+<span class="boring">}</span></code></pre>
+<h3 id="field-is-private-1"><a class="header" href="#field-is-private-1"><code>field is private</code></a></h3>
+<p>Il campo della struct non è <code>pub</code>.</p>
+<p>Esempio:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct Player {
+    pub health: i32,
+}
+<span class="boring">}</span></code></pre>
+<p>Rendi pubblici i campi solo quando un altro modulo deve davvero leggerli o modificarli.</p>
+<h3 id="uniformtypemismatch-1"><a class="header" href="#uniformtypemismatch-1"><code>UniformTypeMismatch</code></a></h3>
+<p>Il tipo Rust della uniform non corrisponde al tipo GLSL.</p>
+<p>Esempi:</p>
+<ul>
+<li>GLSL <code>float</code> richiede Rust <code>f32</code>.</li>
+<li>GLSL <code>vec3</code> richiede <code>[f32; 3]</code>.</li>
+<li>GLSL <code>mat4</code> richiede <code>[[f32; 4]; 4]</code>.</li>
+</ul>
+<p>Corretto:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>layer_speed: 3.5f32,
+light_dir: [0.35f32, 0.8, 0.5],
+vp: mat4(vp),
+<span class="boring">}</span></code></pre>
+<h3 id="mesh-invisibile-o-vuota"><a class="header" href="#mesh-invisibile-o-vuota">Mesh Invisibile O Vuota</a></h3>
+<p>Controlla:</p>
+<ul>
+<li>Gli indici sono validi per l’array di vertici?</li>
+<li>L’oggetto è dietro la camera?</li>
+<li>L’oggetto è troppo piccolo o troppo grande?</li>
+<li>Il colore è troppo scuro?</li>
+<li>Il depth test lo sta nascondendo?</li>
+<li>Il nome dell’input shader corrisponde al campo Rust del vertice?</li>
+</ul>
+<h3 id="un-carattere-del-testo-non-si-vede"><a class="header" href="#un-carattere-del-testo-non-si-vede">Un Carattere Del Testo Non Si Vede</a></h3>
+<p>Aggiungi il carattere in <code>glyph(...)</code> dentro <code>src/ui.rs</code>, oppure usa lettere e numeri già supportati.</p>
+<h2 id="linee-guida-di-stile"><a class="header" href="#linee-guida-di-stile">Linee Guida Di Stile</a></h2>
+<ul>
+<li>Tieni la simulazione in <code>game.rs</code>.</li>
+<li>Tieni il rendering OpenGL in <code>renderer.rs</code>.</li>
+<li>Tieni geometria generata in <code>procedural.rs</code>.</li>
+<li>Tieni valori di bilanciamento condivisi in <code>config.rs</code>.</li>
+<li>Tieni gli shader in <code>shaders.rs</code>.</li>
+<li>Tieni hitbox UI e testo bitmap in <code>ui.rs</code>.</li>
+<li>Evita decisioni di gameplay negli shader.</li>
+<li>Evita creazione buffer rendering dentro <code>game.rs</code>.</li>
+<li>Mantieni <code>main.rs</code> concentrato su eventi finestra e transizioni di stato.</li>
+</ul>
+<p>Questa divisione rende le modifiche manuali più piccole, leggibili e facili da testare.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+
+        <script>
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+
+
+    </div>
+    </body>
+</html>

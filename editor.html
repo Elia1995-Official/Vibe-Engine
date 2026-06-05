@@ -1,0 +1,698 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Editor Documentation - Vibe Engine Documentation</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Documentation for the Vibe Engine game engine">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-f3d3496a.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-d8db851b.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Vibe Engine Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="vibe-editor-documentation"><a class="header" href="#vibe-editor-documentation">Vibe Editor Documentation</a></h1>
+<p>This document is the in-depth guide for the standalone Vibe Editor application.</p>
+<p>It explains:</p>
+<ul>
+<li>How the editor is structured internally.</li>
+<li>What each panel does and how interactions work.</li>
+<li>How project data is modeled and serialized.</li>
+<li>How runtime export is produced.</li>
+<li>How to extend the editor safely.</li>
+</ul>
+<p>The implementation described here corresponds to the current code in src/bin/vibe_editor.rs.</p>
+<h2 id="1-purpose-and-scope"><a class="header" href="#1-purpose-and-scope">1) Purpose and Scope</a></h2>
+<p>Vibe Editor is a native GUI tool (eframe/egui) for authoring Vibe Engine content through a scene/entity/component workflow.</p>
+<p>Primary responsibilities:</p>
+<ul>
+<li>Project authoring (metadata and physics/settings).</li>
+<li>Scene authoring (scene list, clear color, ambient, grid).</li>
+<li>Entity authoring (transform and optional components).</li>
+<li>Asset catalog management.</li>
+<li>Runtime pack export for engine-side consumption.</li>
+<li>Launching sibling binaries from the editor (game runtime and launcher app).</li>
+</ul>
+<p>Non-goals in current version:</p>
+<ul>
+<li>No timeline/animation editor.</li>
+<li>No prefab system.</li>
+<li>No built-in script compiler.</li>
+<li>No undo/redo stack.</li>
+<li>No deep in-editor game simulation beyond a UI-level preview toggle.</li>
+</ul>
+<h2 id="2-high-level-architecture"><a class="header" href="#2-high-level-architecture">2) High-Level Architecture</a></h2>
+<h3 id="21-main-app-state"><a class="header" href="#21-main-app-state">2.1 Main app state</a></h3>
+<p>The editor is modeled as a single stateful app struct:</p>
+<ul>
+<li>EditorApp holds project data, UI state, viewport state, selection state, status/logging, and ID allocation.</li>
+</ul>
+<p>Core fields include:</p>
+<ul>
+<li>project: full editable project document.</li>
+<li>project_path: save/open target path.</li>
+<li>selected_scene, selected_entity, selected_asset: active selections.</li>
+<li>hierarchy_filter, asset_filter: list filtering state.</li>
+<li>tool_mode: Select / Move / Rotate / Scale (only Move is currently behaviorally active in viewport).</li>
+<li>viewport_zoom, viewport_pan: camera controls for 2D top projection.</li>
+<li>snap_enabled, snap_size, show_grid: placement aids.</li>
+<li>play_mode: UI toggle for preview state.</li>
+<li>dirty: unsaved-changes flag.</li>
+<li>status_line + console: user-visible diagnostics/event trace.</li>
+<li>next_id: monotonic ID allocator.</li>
+</ul>
+<h3 id="22-frameupdate-lifecycle"><a class="header" href="#22-frameupdate-lifecycle">2.2 Frame/update lifecycle</a></h3>
+<p>Each frame, update executes this order:</p>
+<ol>
+<li>ensure_valid_selection</li>
+<li>show_top_bar</li>
+<li>show_bottom_panel</li>
+<li>show_hierarchy_panel</li>
+<li>show_inspector_panel</li>
+<li>show_viewport</li>
+</ol>
+<p>This order is important:</p>
+<ul>
+<li>Selection normalization happens before panel reads/writes.</li>
+<li>Panels mutate shared app state directly.</li>
+<li>Viewport interactions can change selection and transform values last in frame.</li>
+</ul>
+<h2 id="3-data-model"><a class="header" href="#3-data-model">3) Data Model</a></h2>
+<p>All project-side data is serde-serializable JSON.</p>
+<h3 id="31-projectdocument"><a class="header" href="#31-projectdocument">3.1 ProjectDocument</a></h3>
+<p>Contains:</p>
+<ul>
+<li>name, author, engine_version</li>
+<li>created_unix, modified_unix</li>
+<li>notes</li>
+<li>settings: ProjectSettings</li>
+<li>scenes: Vec<scenedocument></scenedocument></li>
+<li>assets: Vec<assetdocument></assetdocument></li>
+</ul>
+<p>Default project creates one scene and no assets.</p>
+<h3 id="32-projectsettings"><a class="header" href="#32-projectsettings">3.2 ProjectSettings</a></h3>
+<p>Current editable settings:</p>
+<ul>
+<li>startup_scene (string)</li>
+<li>gravity (f32)</li>
+<li>fixed_timestep (f32)</li>
+<li>lighting_quality (string)</li>
+</ul>
+<h3 id="33-scenedocument"><a class="header" href="#33-scenedocument">3.3 SceneDocument</a></h3>
+<p>Contains:</p>
+<ul>
+<li>id</li>
+<li>name</li>
+<li>ambient_light [r,g,b]</li>
+<li>clear_color [r,g,b]</li>
+<li>grid_size</li>
+<li>entities</li>
+</ul>
+<p>Default scene includes a default camera entity.</p>
+<h3 id="34-entitydocument-and-components"><a class="header" href="#34-entitydocument-and-components">3.4 EntityDocument and components</a></h3>
+<p>Entity fields:</p>
+<ul>
+<li>id</li>
+<li>name</li>
+<li>enabled</li>
+<li>tags (comma-separated string in project format)</li>
+<li>transform (always present)</li>
+<li>render (optional)</li>
+<li>collider (optional)</li>
+<li>script (optional)</li>
+</ul>
+<p>Components:</p>
+<ul>
+<li>TransformComponent: position/rotation/scale, each as [f32; 3].</li>
+<li>RenderComponent:
+<ul>
+<li>kind: Mesh | Sprite | Light</li>
+<li>mesh path</li>
+<li>material path</li>
+<li>color [f32; 4]</li>
+<li>layer i32</li>
+</ul>
+</li>
+<li>ColliderComponent:
+<ul>
+<li>shape: Box | Sphere | Capsule</li>
+<li>size [f32; 3]</li>
+<li>is_trigger</li>
+</ul>
+</li>
+<li>ScriptComponent:
+<ul>
+<li>script_path</li>
+<li>entry</li>
+</ul>
+</li>
+</ul>
+<h3 id="35-assetdocument"><a class="header" href="#35-assetdocument">3.5 AssetDocument</a></h3>
+<p>Asset catalog items include:</p>
+<ul>
+<li>id</li>
+<li>name</li>
+<li>path</li>
+<li>kind: Texture | Mesh | Material | Audio | Script | Other</li>
+</ul>
+<p>Kind can be inferred by extension on import and manually changed in Inspector.</p>
+<h2 id="4-ui-layout-and-panel-behavior"><a class="header" href="#4-ui-layout-and-panel-behavior">4) UI Layout and Panel Behavior</a></h2>
+<p>The editor uses a multi-panel desktop layout:</p>
+<ul>
+<li>Top bar: menus + toolbar controls.</li>
+<li>Left panel: Hierarchy.</li>
+<li>Right panel: Inspector.</li>
+<li>Bottom panel: Asset Browser + Console split.</li>
+<li>Center: Viewport.</li>
+</ul>
+<h3 id="41-top-bar"><a class="header" href="#41-top-bar">4.1 Top bar</a></h3>
+<p>File menu:</p>
+<ul>
+<li>New Project</li>
+<li>Open Project…</li>
+<li>Save</li>
+<li>Save As…</li>
+<li>Export Runtime Pack…</li>
+<li>Quit</li>
+</ul>
+<p>Project menu:</p>
+<ul>
+<li>Launch Game Collection (vibe-engine)</li>
+<li>Launch Launcher App (vibe-launcher)</li>
+<li>Create Scene</li>
+<li>Create Entity</li>
+</ul>
+<p>Toolbar controls:</p>
+<ul>
+<li>Tool mode toggles.</li>
+<li>Play Preview / Stop Preview.</li>
+<li>Grid toggle.</li>
+<li>Snap toggle and snap step value.</li>
+<li>Quick actions: + Entity, Import Asset.</li>
+</ul>
+<h3 id="42-hierarchy-panel"><a class="header" href="#42-hierarchy-panel">4.2 Hierarchy panel</a></h3>
+<p>Capabilities:</p>
+<ul>
+<li>Add/remove scenes.</li>
+<li>Add/duplicate/delete entities.</li>
+<li>Text filter for entity names.</li>
+<li>Scene collapsible groups with entity counts.</li>
+<li>Scene-level “Scene Settings” pseudo-item to switch inspector context.</li>
+</ul>
+<p>Selection semantics:</p>
+<ul>
+<li>Selecting a scene settings row clears selected_entity.</li>
+<li>Selecting entity sets both selected_scene and selected_entity.</li>
+</ul>
+<h3 id="43-inspector-panel"><a class="header" href="#43-inspector-panel">4.3 Inspector panel</a></h3>
+<p>Dual-context behavior:</p>
+<ul>
+<li>If entity selected: entity + components inspector.</li>
+<li>If no entity selected: scene + project inspector.</li>
+</ul>
+<p>Entity inspector operations:</p>
+<ul>
+<li>Rename, enable toggle, tags edit.</li>
+<li>Transform edit via numeric DragValue fields.</li>
+<li>Per-component enable/disable toggles for Render, Collider, Script.</li>
+<li>Component-specific field editing.</li>
+</ul>
+<p>Scene/project inspector operations:</p>
+<ul>
+<li>Scene name, grid size, ambient and clear color edits.</li>
+<li>Project metadata/settings/notes edits.</li>
+</ul>
+<p>All edits mark project dirty and append a timestamped log entry.</p>
+<h3 id="44-bottom-panel"><a class="header" href="#44-bottom-panel">4.4 Bottom panel</a></h3>
+<p>Left column: Asset Browser</p>
+<ul>
+<li>Import File…</li>
+<li>Remove Selected</li>
+<li>Add Path (manual path text input)</li>
+<li>Filter list by asset name</li>
+<li>Select asset to inspect/edit on right panel</li>
+</ul>
+<p>Right column: Console</p>
+<ul>
+<li>Shows status line and timestamped action log.</li>
+<li>Clear button resets console history.</li>
+</ul>
+<h3 id="45-viewport"><a class="header" href="#45-viewport">4.5 Viewport</a></h3>
+<p>The viewport draws a top-down projected scene:</p>
+<ul>
+<li>Background uses scene clear color.</li>
+<li>Optional grid overlay using scene grid_size.</li>
+<li>Entities drawn as circles with labels.</li>
+<li>Selected entity receives highlight ring.</li>
+</ul>
+<p>Interactions:</p>
+<ul>
+<li>Mouse wheel while hovered: zoom in/out (clamped).</li>
+<li>Left click: select nearest entity within hit radius.</li>
+<li>Left drag in Move mode: move selected entity on X/Z plane.</li>
+<li>Double click: create entity at cursor world position.</li>
+<li>Middle mouse drag: pan viewport.</li>
+</ul>
+<p>Coordinate transforms:</p>
+<ul>
+<li>world_to_screen and screen_to_world handle mapping.</li>
+<li>snap_value rounds X/Z positions when snap is enabled.</li>
+</ul>
+<h2 id="5-state-integrity-and-safety-rules"><a class="header" href="#5-state-integrity-and-safety-rules">5) State Integrity and Safety Rules</a></h2>
+<h3 id="51-selection-safety"><a class="header" href="#51-selection-safety">5.1 Selection safety</a></h3>
+<p>ensure_valid_selection enforces invariants each frame:</p>
+<ul>
+<li>At least one scene exists.</li>
+<li>selected_scene index remains in range.</li>
+<li>selected_entity is cleared if entity no longer exists.</li>
+</ul>
+<p>This avoids stale references after delete/open/new operations.</p>
+<h3 id="52-stable-ids"><a class="header" href="#52-stable-ids">5.2 Stable IDs</a></h3>
+<p>ID behavior:</p>
+<ul>
+<li>allocate_id returns next_id then increments.</li>
+<li>recompute_next_id scans all scene/entity/asset IDs and sets max+1.</li>
+</ul>
+<p>Recompute is called after default init, new project, and project open to avoid collisions.</p>
+<h3 id="53-dirty-tracking-and-logs"><a class="header" href="#53-dirty-tracking-and-logs">5.3 Dirty tracking and logs</a></h3>
+<p>mark_dirty:</p>
+<ul>
+<li>Sets dirty true.</li>
+<li>Pushes timestamped log entry via push_log.</li>
+</ul>
+<p>Write/save success clears dirty.</p>
+<h2 id="6-file-io-and-serialization"><a class="header" href="#6-file-io-and-serialization">6) File I/O and Serialization</a></h2>
+<h3 id="61-project-saveopen"><a class="header" href="#61-project-saveopen">6.1 Project save/open</a></h3>
+<p>Project files are JSON and written pretty-formatted.</p>
+<p>Open flow:</p>
+<ul>
+<li>Read file to string.</li>
+<li>Deserialize to ProjectDocument.</li>
+<li>Reset selections and dirty state.</li>
+<li>Recompute IDs.</li>
+</ul>
+<p>Save flow:</p>
+<ul>
+<li>Save uses current path if known.</li>
+<li>Save As prompts for path (default filename project.vibe.json).</li>
+<li>modified_unix updated before serialization.</li>
+</ul>
+<p>Errors are surfaced through status_line and console.</p>
+<h3 id="62-runtime-pack-export"><a class="header" href="#62-runtime-pack-export">6.2 Runtime pack export</a></h3>
+<p>Export dialog writes JSON (default filename runtime_pack.json).</p>
+<p>Export transformation:</p>
+<ul>
+<li>Project-level output keeps project_name and exported_unix.</li>
+<li>Scenes map to RuntimeScene with ambient/clear and entities.</li>
+<li>Entity tags string is split by comma, trimmed, and empty tags removed.</li>
+<li>Component payloads are passed through as optional structs.</li>
+</ul>
+<p>This intentionally flattens project editing metadata into runtime-ready content.</p>
+<h2 id="7-runtime-integration-and-process-launching"><a class="header" href="#7-runtime-integration-and-process-launching">7) Runtime Integration and Process Launching</a></h2>
+<p>The editor can launch other binaries.</p>
+<p>launch_binary uses spawn_binary with multi-path probing:</p>
+<ul>
+<li>Adjacent to current executable.</li>
+<li>target/debug and target/release.</li>
+<li>Windows .exe variants.</li>
+<li>Final fallback: cargo run –bin <name>.</name></li>
+</ul>
+<p>This improves resilience in dev and packaged contexts.</p>
+<h2 id="8-asset-import-behavior"><a class="header" href="#8-asset-import-behavior">8) Asset Import Behavior</a></h2>
+<p>Import paths can come from file dialog or typed path input.</p>
+<p>infer_asset_kind extension mapping:</p>
+<ul>
+<li>Texture: png/jpg/jpeg/webp/bmp/tga</li>
+<li>Mesh: obj/fbx/gltf/glb</li>
+<li>Audio: wav/ogg/mp3/flac</li>
+<li>Material: mat/material</li>
+<li>Script: rs/lua/js/ts</li>
+<li>Else: Other</li>
+</ul>
+<p>Imported asset name defaults to file stem.</p>
+<h2 id="9-practical-workflows"><a class="header" href="#9-practical-workflows">9) Practical Workflows</a></h2>
+<h3 id="91-create-a-new-playable-scene-draft"><a class="header" href="#91-create-a-new-playable-scene-draft">9.1 Create a new playable scene draft</a></h3>
+<ol>
+<li>New Project.</li>
+<li>Create Scene and set clear/ambient color.</li>
+<li>Add Entity in hierarchy or double click viewport.</li>
+<li>Select Move tool and place entities using snap.</li>
+<li>Enable/configure Render and Collider in Inspector.</li>
+<li>Add Script component where needed.</li>
+<li>Import referenced assets in Asset Browser.</li>
+<li>Save project.</li>
+<li>Export Runtime Pack.</li>
+</ol>
+<h3 id="92-fast-blockout-pass"><a class="header" href="#92-fast-blockout-pass">9.2 Fast blockout pass</a></h3>
+<ol>
+<li>Keep snap enabled and set larger step.</li>
+<li>Use duplicate entity for repeated props.</li>
+<li>Pan + zoom to place groups quickly.</li>
+<li>Use filters in hierarchy to focus on subset.</li>
+</ol>
+<h3 id="93-data-sanity-pass-before-export"><a class="header" href="#93-data-sanity-pass-before-export">9.3 Data sanity pass before export</a></h3>
+<ol>
+<li>Ensure startup_scene matches an existing scene name.</li>
+<li>Ensure asset paths and script paths are valid for your runtime layout.</li>
+<li>Verify tags use comma-separated semantics.</li>
+<li>Export runtime pack and inspect in web runtime inspector.</li>
+</ol>
+<h2 id="10-runtime-pack-compatibility-notes"><a class="header" href="#10-runtime-pack-compatibility-notes">10) Runtime Pack Compatibility Notes</a></h2>
+<p>The web frontend includes a runtime pack inspector that parses exported JSON and reports:</p>
+<ul>
+<li>Scene count</li>
+<li>Entity count</li>
+<li>Script/render/collider component counts</li>
+<li>Scene name list</li>
+</ul>
+<p>If parse fails, error text is shown directly in the web UI.</p>
+<p>This gives a lightweight validation pass without launching native game runtime.</p>
+<h2 id="11-extension-guide-for-developers"><a class="header" href="#11-extension-guide-for-developers">11) Extension Guide for Developers</a></h2>
+<h3 id="111-add-a-new-entity-component-type"><a class="header" href="#111-add-a-new-entity-component-type">11.1 Add a new entity component type</a></h3>
+<p>Recommended change sequence:</p>
+<ol>
+<li>Add component struct and optional field to EntityDocument.</li>
+<li>Add inspector section for enable toggle + field editors.</li>
+<li>Extend RuntimeEntity export struct and export mapping.</li>
+<li>Ensure serialization derives are present.</li>
+<li>Confirm open/save/export backward compatibility.</li>
+</ol>
+<h3 id="112-add-a-new-asset-kind"><a class="header" href="#112-add-a-new-asset-kind">11.2 Add a new asset kind</a></h3>
+<ol>
+<li>Extend AssetKind enum and label().</li>
+<li>Update inspector ComboBox list.</li>
+<li>Update infer_asset_kind extension mapping.</li>
+</ol>
+<h3 id="113-add-true-behavior-for-rotatescale-tool-modes"><a class="header" href="#113-add-true-behavior-for-rotatescale-tool-modes">11.3 Add true behavior for Rotate/Scale tool modes</a></h3>
+<p>Current viewport interaction branch only applies Move mode transforms.</p>
+<p>To extend:</p>
+<ol>
+<li>Add drag handling branches for Rotate and Scale.</li>
+<li>Add visual gizmos/handles in draw_entities or dedicated draw pass.</li>
+<li>Respect snap settings or add independent rotational snap settings.</li>
+</ol>
+<h3 id="114-add-undoredo"><a class="header" href="#114-add-undoredo">11.4 Add undo/redo</a></h3>
+<p>Current model is direct mutation. For undo/redo:</p>
+<ol>
+<li>Introduce command/event history stack.</li>
+<li>Route all mutating operations through command dispatcher.</li>
+<li>Encode inverse operations for each command.</li>
+<li>Integrate keyboard shortcuts and menu entries.</li>
+</ol>
+<h2 id="12-current-limitations-and-design-tradeoffs"><a class="header" href="#12-current-limitations-and-design-tradeoffs">12) Current Limitations and Design Tradeoffs</a></h2>
+<ul>
+<li>play_mode is a UI flag and log signal, not a full simulation loop.</li>
+<li>No hard referential integrity checks between entity render/script paths and asset entries.</li>
+<li>No per-scene local asset scoping.</li>
+<li>Tags are stored as a single CSV string in project format, transformed to list on export.</li>
+<li>No validation warning panel yet (only status + console messages).</li>
+</ul>
+<p>These tradeoffs keep the editor simple and fast to iterate while preserving a useful authoring baseline.</p>
+<h2 id="13-troubleshooting"><a class="header" href="#13-troubleshooting">13) Troubleshooting</a></h2>
+<h3 id="problem-could-not-saveopen-project"><a class="header" href="#problem-could-not-saveopen-project">Problem: Could not save/open project</a></h3>
+<p>Check:</p>
+<ul>
+<li>File permissions.</li>
+<li>Parent directory existence.</li>
+<li>JSON validity when opening manually edited files.</li>
+</ul>
+<p>The status line and console include exact error strings.</p>
+<h3 id="problem-entity-appears-unselectable-in-viewport"><a class="header" href="#problem-entity-appears-unselectable-in-viewport">Problem: Entity appears unselectable in viewport</a></h3>
+<p>Check:</p>
+<ul>
+<li>Zoom level and pan offset.</li>
+<li>Whether entity exists in selected scene.</li>
+<li>Selection radius is proximity-based in screen space.</li>
+</ul>
+<h3 id="problem-runtime-pack-parses-in-editor-export-but-fails-in-downstream-consumer"><a class="header" href="#problem-runtime-pack-parses-in-editor-export-but-fails-in-downstream-consumer">Problem: Runtime pack parses in editor export but fails in downstream consumer</a></h3>
+<p>Check:</p>
+<ul>
+<li>Script/asset path expectations in runtime.</li>
+<li>Enum/string expectations in consumer parser.</li>
+<li>Tag formatting assumptions (CSV in project, list in runtime export).</li>
+</ul>
+<h2 id="14-source-map-implementation-anchors"><a class="header" href="#14-source-map-implementation-anchors">14) Source Map (Implementation Anchors)</a></h2>
+<p>Primary file:</p>
+<ul>
+<li>src/bin/vibe_editor.rs</li>
+</ul>
+<p>Notable anchors:</p>
+<ul>
+<li>ProjectDocument definition</li>
+<li>SceneDocument definition</li>
+<li>EntityDocument definition</li>
+<li>RuntimeExport definition</li>
+<li>EditorApp definition</li>
+<li>show_top_bar</li>
+<li>show_hierarchy_panel</li>
+<li>show_inspector_panel</li>
+<li>show_bottom_panel</li>
+<li>show_viewport</li>
+<li>draw_scene_and_project_inspector</li>
+<li>draw_entity_inspector</li>
+<li>draw_asset_browser</li>
+<li>draw_console</li>
+<li>draw_selected_asset</li>
+<li>draw_grid</li>
+<li>draw_entities</li>
+<li>select_entity_at_screen</li>
+<li>ensure_valid_selection</li>
+<li>save/open/export/import functions</li>
+<li>spawn_binary helper</li>
+</ul>
+<p>Related runtime-pack consumer for cross-checking export compatibility:</p>
+<ul>
+<li>src/bin/vibe_web.rs</li>
+<li>draw_runtime_pack</li>
+<li>parse_runtime_pack</li>
+</ul>
+<h2 id="15-recommended-next-improvements"><a class="header" href="#15-recommended-next-improvements">15) Recommended Next Improvements</a></h2>
+<ul>
+<li>Add validation panel with structured warnings/errors before export.</li>
+<li>Add undo/redo command stack.</li>
+<li>Add true transform gizmos for rotate/scale.</li>
+<li>Add scene/entity search by tags and component presence.</li>
+<li>Add per-asset metadata (import settings, compression, bundles).</li>
+<li>Add runtime pack schema version field for forward compatibility.</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="coding-guide.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="coding-guide.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>
