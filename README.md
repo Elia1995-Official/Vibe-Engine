@@ -73,19 +73,16 @@ trunk build --release --config Trunk.toml
 
 The web build output is written to `dist-web/` and can be deployed to any static hosting provider.
 
-## Documentation
+## Docs
 
-Full documentation is available at **[Elia1995-Official.github.io/Vibe-Engine](https://Elia1995-Official.github.io/Vibe-Engine/)** — built with mdBook and deployed via GitHub Pages.
+I try to keep docs in sync with the code — if something breaks or changes, the docs should reflect it.
 
-Documentation includes:
-- [Editor Documentation](https://Elia1995-Official.github.io/Vibe-Engine/editor.html) — full guide for the Vibe Editor application
-- [Manual Coding Guide](https://Elia1995-Official.github.io/Vibe-Engine/coding-guide.html) — file-by-file walkthrough of the engine source
-- [Guida di Codifica Manuale](https://Elia1995-Official.github.io/Vibe-Engine/coding-guide-it.html) — versione italiana
+- [Vibe Engine docs site](https://Elia1995-Official.github.io/Vibe-Engine/)
+- [Editor guide](https://Elia1995-Official.github.io/Vibe-Engine/editor.html)
+- [Code walkthrough](https://Elia1995-Official.github.io/Vibe-Engine/coding-guide.html)
+- [Guida in italiano](https://Elia1995-Official.github.io/Vibe-Engine/coding-guide-it.html)
 
-Documentation rule:
-- After each code change, update the relevant documentation files in the same work pass so behavior, controls, and architecture notes stay aligned with the code.
-
-Controls:
+## Controls
 
 - Game selection: click a game, press Enter for Space Shooter, press S for 3D Snake, press F for FPS Arena, or press T for Tetris
 - Each game menu: click Start, press Enter, or press Space
